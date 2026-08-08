@@ -1,0 +1,17 @@
+:root{
+  --bg: #f6f7fb;
+  --card: #fff;
+  --text: #0f172a;
+  --muted: #64748b;
+}
+*{box-sizing:border-box}
+body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);margin:0;padding:24px}
+.app{max-width:980px;margin:0 auto}
+header h1{margin:0;font-size:1.5rem}
+main{display:flex;gap:20px;margin-top:18px}
+.input{flex:1}
+.results{width:360px}
+textarea{width:100%;min-height:200px;padding:12px;border-radius:8px;border:1px solid #e2e8f0;background:var(--card)}
+.controls{display:flex;gap:8px;margin-top:8px}
+.result-card{background:var(--card);padding:12px;border-radius:8px;border:1px solid #e2e8f0}
+.hash{word-break:break-all}
