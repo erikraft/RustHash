@@ -13,4 +13,5 @@ blake3 = "1.4"
 md-5 = "0.10"
 
 [dev-dependencies]
+hex = "0.4.3"
 wasm-bindgen-test = "0.3"
