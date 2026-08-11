@@ -1,0 +1,8 @@
+# Rust target dir and build outputs
+rust/target/
+frontend/src/pkg/
+frontend/dist/
+frontend/node_modules/
+node_modules/
+dist/
+.vercel
