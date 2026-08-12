@@ -1,3 +1,5 @@
+pub mod nfc;
+
 use wasm_bindgen::prelude::*;
 use sha2::{Digest as _, Sha256, Sha512, Sha224, Sha384, Sha512_224, Sha512_256};
 use sha1::Sha1;
