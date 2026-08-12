@@ -2,6 +2,60 @@ import React, { useState, useEffect, useRef } from 'react';
 import { hashAlgorithms, HashAlgorithmInfo } from './hashRegistry';
 import NfcSection from './NfcSection';
 
+// Safe helper to access GSAP from window context without breaking the app if CDN fails
+const getGSAP = () => {
+  if (typeof window === 'undefined') return null;
+  const g = (window as any).gsap;
+  if (!g) {
+    console.warn("GSAP CDN is not available.");
+    return null;
+  }
+  return g;
+};
+
+// Motion reduction preference utility
+const isReducedMotion = () => {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+};
+
+// Safe hover micro-interaction for button scaling
+const handleButtonHover = (e: React.MouseEvent<HTMLElement>, isEnter: boolean) => {
+  const gsap = getGSAP();
+  if (!gsap || isReducedMotion()) return;
+  gsap.to(e.currentTarget, {
+    scale: isEnter ? 1.03 : 1,
+    duration: 0.3,
+    ease: "power2.out"
+  });
+};
+
+// Safe active/press micro-interaction for buttons
+const handleButtonPress = (e: React.MouseEvent<HTMLElement>) => {
+  const gsap = getGSAP();
+  if (!gsap || isReducedMotion()) return;
+  gsap.to(e.currentTarget, {
+    scale: 0.97,
+    duration: 0.1,
+    yoyo: true,
+    repeat: 1,
+    ease: "power1.inOut"
+  });
+};
+
+// Safe card hover interaction
+const handleCardHover = (e: React.MouseEvent<HTMLElement>, isEnter: boolean) => {
+  const gsap = getGSAP();
+  if (!gsap || isReducedMotion()) return;
+  gsap.to(e.currentTarget, {
+    y: isEnter ? -4 : 0,
+    borderColor: isEnter ? "var(--border-glow)" : "var(--border)",
+    boxShadow: isEnter ? "0 20px 45px -15px rgba(0,0,0,0.9), var(--glow-shadow)" : "none",
+    duration: 0.4,
+    ease: "power2.out"
+  });
+};
+
 export default function App() {
   // Tabs: 'text', 'file', or 'nfc'
   const [activeTab, setActiveTab] = useState<'text' | 'file' | 'nfc'>('text');
@@ -141,6 +195,84 @@ export default function App() {
       clearInterval(typingInterval);
     };
   }, []);
+
+  // Entrance animations after booting completes
+  useEffect(() => {
+    if (isBooting) return;
+    const gsap = getGSAP();
+    if (!gsap || isReducedMotion()) return;
+
+    // Animate header, tabs, sections and cards with staggering
+    const tl = gsap.timeline();
+    tl.from(".site-header", {
+      opacity: 0,
+      y: -20,
+      duration: 0.6,
+      ease: "power2.out"
+    })
+    .from(".tabs", {
+      opacity: 0,
+      y: 10,
+      duration: 0.4,
+      ease: "power2.out"
+    }, "-=0.3")
+    .from(".input-section", {
+      opacity: 0,
+      y: 20,
+      duration: 0.6,
+      ease: "power3.out"
+    }, "-=0.2")
+    .from(".cli-panel", {
+      opacity: 0,
+      y: 20,
+      duration: 0.6,
+      ease: "power3.out"
+    }, "-=0.4")
+    .from(".algos-explorer", {
+      opacity: 0,
+      y: 20,
+      duration: 0.6,
+      ease: "power3.out"
+    }, "-=0.4")
+    .from(".result-card", {
+      opacity: 0,
+      scale: 0.95,
+      duration: 0.4,
+      stagger: 0.05,
+      ease: "power1.out"
+    }, "-=0.3");
+
+    return () => {
+      tl.kill();
+    };
+  }, [isBooting]);
+
+  // Modal display entrance animation
+  useEffect(() => {
+    if (!activeInfoAlgo) return;
+    const gsap = getGSAP();
+    if (!gsap || isReducedMotion()) return;
+
+    // Smooth modal dialog pop-in
+    const tl = gsap.fromTo(".modal-content",
+      {
+        opacity: 0,
+        scale: 0.9,
+        y: 20
+      },
+      {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        duration: 0.4,
+        ease: "back.out(1.2)"
+      }
+    );
+
+    return () => {
+      tl.kill();
+    };
+  }, [activeInfoAlgo]);
 
   // Header Typing Phrases loop
   useEffect(() => {
@@ -417,7 +549,8 @@ export default function App() {
         <header className="site-header">
           <h1>RustHash</h1>
           <p>
-            🔒 <span className="typing-text">{typingText}</span>
+            <i className="fa-solid fa-lock" aria-hidden="true" style={{ marginRight: '6px' }}></i>
+            <span className="typing-text">{typingText}</span>
             <span className="cursor">|</span>
           </p>
         </header>
@@ -426,6 +559,9 @@ export default function App() {
         <div className="tabs">
           <button
             className={`tab-btn ${activeTab === 'text' ? 'active' : ''}`}
+            onMouseEnter={(e) => handleButtonHover(e, true)}
+            onMouseLeave={(e) => handleButtonHover(e, false)}
+            onMouseDown={handleButtonPress}
             onClick={() => {
               setActiveTab('text');
               setFile(null);
@@ -434,10 +570,13 @@ export default function App() {
               setHashes(null);
             }}
           >
-            ✍️ Entrada de Texto
+            <i className="fa-solid fa-pen-to-square" aria-hidden="true" style={{ marginRight: '8px' }}></i>Entrada de Texto
           </button>
           <button
             className={`tab-btn ${activeTab === 'file' ? 'active' : ''}`}
+            onMouseEnter={(e) => handleButtonHover(e, true)}
+            onMouseLeave={(e) => handleButtonHover(e, false)}
+            onMouseDown={handleButtonPress}
             onClick={() => {
               setActiveTab('file');
               setText('');
@@ -446,7 +585,7 @@ export default function App() {
               setHashes(null);
             }}
           >
-            📁 Envio de Arquivo
+            <i className="fa-solid fa-file-arrow-up" aria-hidden="true" style={{ marginRight: '8px' }}></i>Envio de Arquivo
           </button>
           <button
             className={`tab-btn ${activeTab === 'nfc' ? 'active' : ''}`}
@@ -467,7 +606,7 @@ export default function App() {
         <main>
           {activeTab === 'text' && (
             <section className="premium-card input-section">
-              <h2>✍️ String de Entrada</h2>
+              <h2><i className="fa-solid fa-pen-nib" aria-hidden="true" style={{ marginRight: '10px' }}></i>String de Entrada</h2>
               <textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
@@ -476,6 +615,9 @@ export default function App() {
               <div className="controls" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <button
                   className="btn btn-secondary"
+                  onMouseEnter={(e) => handleButtonHover(e, true)}
+                  onMouseLeave={(e) => handleButtonHover(e, false)}
+                  onMouseDown={handleButtonPress}
                   onClick={() => {
                     setText('');
                     setHashes(null);
@@ -487,6 +629,9 @@ export default function App() {
 
                 <button
                   className="btn btn-secondary"
+                  onMouseEnter={(e) => handleButtonHover(e, true)}
+                  onMouseLeave={(e) => handleButtonHover(e, false)}
+                  onMouseDown={handleButtonPress}
                   style={{
                     background: 'rgba(255,255,255,0.02)',
                     borderColor: 'var(--accent)',
@@ -497,7 +642,7 @@ export default function App() {
                   }}
                   onClick={() => setShowParams(!showParams)}
                 >
-                  <span>⚙️</span>
+                  <i className="fa-solid fa-sliders" aria-hidden="true"></i>
                   <span>{showParams ? 'Ocultar Parâmetros' : 'Configurar Parâmetros de Algoritmos'}</span>
                 </button>
               </div>
@@ -519,7 +664,7 @@ export default function App() {
                   }}
                 >
                   <div style={{ gridColumn: 'span 2', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
-                    <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--accent-light)' }}>⚙️ Ajustar Parâmetros Customizados</h3>
+                    <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--accent-light)', display: 'flex', alignItems: 'center', gap: '8px' }}><i className="fa-solid fa-sliders" aria-hidden="true"></i>Ajustar Parâmetros Customizados</h3>
                     <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: 'var(--muted)' }}>
                       Personalize as chaves, salts e custos de processamento. Os hashes correspondentes atualizarão em tempo real.
                     </p>
@@ -645,7 +790,7 @@ export default function App() {
 
           {activeTab === 'file' && (
             <section className="premium-card input-section">
-              <h2>📁 Selecionar Arquivo</h2>
+              <h2><i className="fa-solid fa-file-arrow-up" aria-hidden="true" style={{ marginRight: '10px' }}></i>Selecionar Arquivo</h2>
               <div
                 className={`dropzone ${isDragOver ? 'dragover' : ''}`}
                 onDragOver={handleDragOver}
@@ -653,7 +798,7 @@ export default function App() {
                 onDrop={handleDrop}
                 onClick={() => document.getElementById('fileInput')?.click()}
               >
-                <div className="dropzone-icon">📥</div>
+                <div className="dropzone-icon"><i className="fa-solid fa-cloud-arrow-up fa-3x" aria-hidden="true"></i></div>
                 <p style={{ fontWeight: 700 }}>Arraste e solte seu arquivo aqui, ou clique para procurar</p>
                 <p style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>
                   Os arquivos são processados 100% localmente no seu navegador via WASM, sem nunca trafegar pela internet.
@@ -676,6 +821,9 @@ export default function App() {
                   </div>
                   <button
                     className="btn btn-secondary"
+                    onMouseEnter={(e) => handleButtonHover(e, true)}
+                    onMouseLeave={(e) => handleButtonHover(e, false)}
+                    onMouseDown={handleButtonPress}
                     style={{ padding: '6px 14px', fontSize: '0.8rem' }}
                     onClick={() => {
                       setFile(null);
@@ -710,29 +858,41 @@ export default function App() {
 
           {error && (
             <div className="error-msg">
-              <span>⚠️</span>
+              <i className="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
               <span>Erro: {error}</span>
             </div>
           )}
 
-          {/* Original stable hashes panel hidden for NFC tab */}
-          {activeTab !== 'nfc' && (
-            <section className="cli-panel">
-              <div className="cli-header">
-                <div className="cli-dots">
-                  <span className="dot red"></span>
-                  <span className="dot yellow"></span>
-                  <span className="dot green"></span>
-                </div>
-                <span className="cli-title">Hashes Principais (Estáveis)</span>
-                <div style={{ justifySelf: 'end' }}>
-                  {isComputing && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--muted)' }}>
-                      <span className="computing-spinner" />
-                      <span style={{ fontSize: '0.75rem', fontFamily: 'var(--mono)', textTransform: 'uppercase' }}>Computando...</span>
-                    </div>
-                  )}
-                </div>
+          {/* Core hashes panel highlighting preserved structures */}
+          <section className="cli-panel">
+            <div className="cli-header">
+              <div className="cli-dots">
+                <span className="dot red"></span>
+                <span className="dot yellow"></span>
+                <span className="dot green"></span>
+              </div>
+              <span className="cli-title">Hashes Principais (Estáveis)</span>
+              <div style={{ justifySelf: 'end' }}>
+                {isComputing && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--muted)' }}>
+                    <span className="computing-spinner" />
+                    <span style={{ fontSize: '0.75rem', fontFamily: 'var(--mono)', textTransform: 'uppercase' }}>Computando...</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div className="compare-box">
+                <span style={{ fontFamily: 'var(--mono)', fontSize: '0.8rem', color: 'var(--accent-light)', textTransform: 'uppercase', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <i className="fa-solid fa-magnifying-glass" aria-hidden="true"></i>Comparar / Verificar Match do Hash
+                </span>
+                <input
+                  type="text"
+                  placeholder="Cole um hash externo para verificar se há correspondência automática..."
+                  value={compareHash}
+                  onChange={(e) => setCompareHash(e.target.value.trim().toLowerCase())}
+                />
               </div>
 
               <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -748,31 +908,45 @@ export default function App() {
                   />
                 </div>
 
-                <div className="results-grid">
-                  {[
-                    { label: 'SHA-256', key: 'sha256' },
-                    { label: 'SHA-512', key: 'sha512' },
-                    { label: 'MD5', key: 'md5' },
-                    { label: 'BLAKE3', key: 'blake3' }
-                  ].map(({ label, key }) => {
-                    const val = hashes ? hashes[key] : '';
-                    const hasMatchValue = compareHash.length > 0 && val.length > 0;
-                    const isMatch = val.toLowerCase() === compareHash;
-
-                    return (
-                      <div className="result-card" key={label}>
-                        <div className="result-card-header">
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <h3>{label}</h3>
+                  return (
+                    <div
+                      className="result-card"
+                      key={label}
+                      onMouseEnter={(e) => handleCardHover(e, true)}
+                      onMouseLeave={(e) => handleCardHover(e, false)}
+                    >
+                      <div className="result-card-header">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <h3>{label}</h3>
+                          <button
+                            className="info-icon-btn"
+                            aria-label="Ver detalhes do algoritmo"
+                            onMouseEnter={(e) => handleButtonHover(e, true)}
+                            onMouseLeave={(e) => handleButtonHover(e, false)}
+                            onMouseDown={handleButtonPress}
+                            onClick={() => {
+                              const match = hashAlgorithms.find(a => a.name === label);
+                              if (match) setActiveInfoAlgo(match);
+                            }}
+                          >
+                            <i className="fa-solid fa-circle-info" aria-hidden="true"></i>
+                          </button>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          {hasMatchValue && (
+                            <span className={`compare-status ${isMatch ? 'match' : 'mismatch'}`}>
+                              {isMatch ? <i className="fa-solid fa-circle-check" aria-hidden="true"></i> : <i className="fa-solid fa-circle-xmark" aria-hidden="true"></i>} {isMatch ? 'Match' : 'Different'}
+                            </span>
+                          )}
+                          {val && (
                             <button
-                              className="info-icon-btn"
-                              title="Ver detalhes do algoritmo"
-                              onClick={() => {
-                                const match = hashAlgorithms.find(a => a.name === label);
-                                if (match) setActiveInfoAlgo(match);
-                              }}
+                              className={`copy-btn ${copiedAlgo === label ? 'copied' : ''}`}
+                              onMouseEnter={(e) => handleButtonHover(e, true)}
+                              onMouseLeave={(e) => handleButtonHover(e, false)}
+                              onMouseDown={handleButtonPress}
+                              onClick={() => copyToClipboard(label, val)}
                             >
-                              ℹ️
+                              {copiedAlgo === label ? <i className="fa-solid fa-circle-check" aria-hidden="true"></i> : <i className="fa-solid fa-copy" aria-hidden="true"></i>} {copiedAlgo === label ? 'Copiado' : 'Copiar'}
                             </button>
                           </div>
                           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -805,8 +979,17 @@ export default function App() {
                   })}
                 </div>
               </div>
-            </section>
-          )}
+            </div>
+          </section>
+
+          {/* New Expanded Algorithms Explorer Interface */}
+          <section className="premium-card algos-explorer">
+            <div className="explorer-header" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '16px', marginBottom: '20px' }}>
+              <h2 style={{ border: 'none', margin: 0, padding: 0, display: 'flex', alignItems: 'center', gap: '10px' }}><i className="fa-solid fa-compass" aria-hidden="true"></i>Explorer de Algoritmos Completo</h2>
+              <p style={{ margin: '8px 0 0 0' }}>
+                Pesquise e compare mais de 100 algoritmos de hashing criptográficos, somas de verificação, hashes rápidos e fuzzy.
+              </p>
+            </div>
 
           {/* New Expanded Algorithms Explorer Interface hidden for NFC tab */}
           {activeTab !== 'nfc' && (
@@ -818,14 +1001,15 @@ export default function App() {
                 </p>
               </div>
 
-              {/* Search and Category Filters Row */}
-              <div className="explorer-controls" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-                <div className="search-wrapper" style={{ position: 'relative', width: '100%' }}>
-                  <input
-                    type="text"
-                    placeholder="Pesquise por nome de algoritmo ou palavras-chave nas descrições..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+              <div className="category-filters-container" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    onMouseEnter={(e) => handleButtonHover(e, true)}
+                    onMouseLeave={(e) => handleButtonHover(e, false)}
+                    onMouseDown={handleButtonPress}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`filter-badge ${selectedCategory === cat ? 'active' : ''}`}
                     style={{
                       width: '100%',
                       background: 'rgba(3,3,5,0.7)',
@@ -868,56 +1052,63 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Algorithms Grid */}
-              <div className="explorer-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
-                {filteredAlgorithms.map(algo => {
-                  const badge = getSecurityBadgeInfo(algo.securityLevel);
-                  const resultsKey = algo.key || algo.name.toLowerCase().replace(/-|\//g, '_');
-                  const val = hashes ? hashes[resultsKey] : '';
-                  const hasMatchValue = compareHash.length > 0 && val && val.length > 0;
-                  const isMatch = val && val.toLowerCase() === compareHash;
+            {/* Algorithms Grid */}
+            <div className="explorer-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+              {filteredAlgorithms.map(algo => {
+                const badge = getSecurityBadgeInfo(algo.securityLevel);
+                const resultsKey = algo.key || algo.name.toLowerCase().replace(/-|\//g, '_');
+                const val = hashes ? hashes[resultsKey] : '';
+                const hasMatchValue = compareHash.length > 0 && val && val.length > 0;
 
-                  return (
-                    <div
-                      className={`explorer-card ${algo.implemented ? 'implemented' : 'not-implemented'}`}
-                      key={algo.name}
-                      style={{
-                        background: 'rgba(3,3,5,0.4)',
-                        border: '1px solid var(--border)',
-                        borderRadius: '8px',
-                        padding: '16px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '12px',
-                        position: 'relative'
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <h4 style={{ margin: 0, fontSize: '1.05rem', color: '#fff' }}>{algo.name}</h4>
-                          <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: '4px', color: 'var(--muted)' }}>
-                            {algo.category}
-                          </span>
-                          <span className={`badge-sec ${badge.className}`}>
-                            {badge.text}
-                          </span>
-                        </div>
+                // Categorize verification types cleanly
+                const isValidationDecimal = algo.category === 'Integridade (Checksum)' && ['Luhn', 'Verhoeff', 'Damm'].includes(algo.name);
+                const isMatch = val && val.toLowerCase() === compareHash;
 
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          {algo.implemented ? (
-                            <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700 }}>● IMPLEMENTADO</span>
-                          ) : (
-                            <span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontStyle: 'italic' }}>○ Não implementado (Info)</span>
-                          )}
-                          <button
-                            className="info-icon-btn"
-                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1.1rem' }}
-                            onClick={() => setActiveInfoAlgo(algo)}
-                            title="Detalhes e Recomendações"
-                          >
-                            ℹ️
-                          </button>
-                        </div>
+                return (
+                  <div
+                    className={`explorer-card ${algo.implemented ? 'implemented' : 'not-implemented'}`}
+                    key={algo.name}
+                    onMouseEnter={(e) => handleCardHover(e, true)}
+                    onMouseLeave={(e) => handleCardHover(e, false)}
+                    style={{
+                      background: 'rgba(3,3,5,0.4)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '8px',
+                      padding: '16px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                      position: 'relative'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <h4 style={{ margin: 0, fontSize: '1.05rem', color: '#fff' }}>{algo.name}</h4>
+                        <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: '4px', color: 'var(--muted)' }}>
+                          {algo.category}
+                        </span>
+                        <span className={`badge-sec ${badge.className}`}>
+                          {badge.text}
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        {algo.implemented ? (
+                          <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700 }}><i className="fa-solid fa-circle" aria-hidden="true" style={{ fontSize: '8px', marginRight: '4px', verticalAlign: 'middle' }}></i>IMPLEMENTADO</span>
+                        ) : (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontStyle: 'italic' }}><i className="fa-regular fa-circle" aria-hidden="true" style={{ fontSize: '8px', marginRight: '4px', verticalAlign: 'middle' }}></i>Não implementado (Info)</span>
+                        )}
+                        <button
+                          className="info-icon-btn"
+                          style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1.1rem' }}
+                          onMouseEnter={(e) => handleButtonHover(e, true)}
+                          onMouseLeave={(e) => handleButtonHover(e, false)}
+                          onMouseDown={handleButtonPress}
+                          onClick={() => setActiveInfoAlgo(algo)}
+                          aria-label="Ver detalhes do algoritmo"
+                        >
+                          <i className="fa-solid fa-circle-info" aria-hidden="true"></i>
+                        </button>
                       </div>
 
                       <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)' }}>
@@ -929,27 +1120,35 @@ export default function App() {
                         <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>{algo.recommendation}</span>
                       </div>
 
-                      {/* Rendering the actual hash if implemented */}
-                      {algo.implemented && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--muted-dark)', fontFamily: 'var(--mono)' }}>HASH OUTPUT:</span>
-                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                              {hasMatchValue && (
-                                <span className={`compare-status ${isMatch ? 'match' : 'mismatch'}`} style={{ fontSize: '0.75rem' }}>
-                                  {isMatch ? '✓ Match' : '✗ Mismatch'}
-                                </span>
-                              )}
-                              {val && (
-                                <button
-                                  className={`copy-btn ${copiedAlgo === algo.name ? 'copied' : ''}`}
-                                  onClick={() => copyToClipboard(algo.name, val)}
-                                  style={{ padding: '2px 8px', fontSize: '10px' }}
-                                >
-                                  {copiedAlgo === algo.name ? '✓ Copiado' : '📋 Copiar'}
-                                </button>
-                              )}
-                            </div>
+                    {/* Rendering the actual hash if implemented */}
+                    {algo.implemented && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--muted-dark)', fontFamily: 'var(--mono)' }}>
+                            {isValidationDecimal ? 'DÍGITO VERIFICADOR / CHECKSUM:' : 'OUTPUT:'}
+                          </span>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            {hasMatchValue && (
+                              <span className={`compare-status ${isMatch ? 'match' : 'mismatch'}`} style={{ fontSize: '0.75rem' }}>
+                                {isValidationDecimal ? (
+                                  isMatch ? '✓ Válido (Check Digit Match)' : '✗ Check Digit Mismatch'
+                                ) : (
+                                  isMatch ? '✓ Match' : '✗ Mismatch'
+                                )}
+                              </span>
+                            )}
+                            {val && (
+                              <button
+                                className={`copy-btn ${copiedAlgo === algo.name ? 'copied' : ''}`}
+                                onMouseEnter={(e) => handleButtonHover(e, true)}
+                                onMouseLeave={(e) => handleButtonHover(e, false)}
+                                onMouseDown={handleButtonPress}
+                                onClick={() => copyToClipboard(algo.name, val)}
+                                style={{ padding: '2px 8px', fontSize: '10px' }}
+                              >
+                                {copiedAlgo === algo.name ? <i className="fa-solid fa-circle-check" aria-hidden="true"></i> : <i className="fa-solid fa-copy" aria-hidden="true"></i>} {copiedAlgo === algo.name ? 'Copiado' : 'Copiar'}
+                              </button>
+                            )}
                           </div>
 
                           <div
@@ -1025,9 +1224,13 @@ export default function App() {
                   fontSize: '1.2rem',
                   cursor: 'pointer'
                 }}
+                onMouseEnter={(e) => handleButtonHover(e, true)}
+                onMouseLeave={(e) => handleButtonHover(e, false)}
+                onMouseDown={handleButtonPress}
                 onClick={() => setActiveInfoAlgo(null)}
+                aria-label="Fechar"
               >
-                ✕
+                <i className="fa-solid fa-xmark" aria-hidden="true"></i>
               </button>
 
               <h3 style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px', marginBottom: '16px', color: '#fff' }}>
@@ -1094,7 +1297,7 @@ export default function App() {
             textAlign: 'left'
           }}>
             <p style={{ margin: '0 0 8px 0', fontWeight: 700, color: 'var(--accent-light)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>⚠️</span> Diretrizes de Segurança de Algoritmos de Hash:
+              <i className="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Diretrizes de Segurança de Algoritmos de Hash:
             </p>
             <p style={{ margin: '0 0 6px 0', fontSize: '0.82rem', color: '#fca5a5' }}>
               <strong>Algoritmos inseguros (Evitar em novos sistemas):</strong> MD2, MD4, MD5, SHA-1, LM Hash e NTLM possuem vulnerabilidades críticas comprovadas (como colisões ativas e inversão rápida) e não oferecem garantia criptográfica. Checksums como Adler-32 e CRC-32 não são criptográficos e servem apenas para detectar corrupção de transmissão de rede ou disco física.
