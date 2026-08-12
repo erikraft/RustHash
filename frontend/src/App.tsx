@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { hashAlgorithms, HashAlgorithmInfo } from './hashRegistry';
+import NfcSection from './NfcSection';
 
 // Safe helper to access GSAP from window context without breaking the app if CDN fails
 const getGSAP = () => {
@@ -56,10 +57,12 @@ const handleCardHover = (e: React.MouseEvent<HTMLElement>, isEnter: boolean) => 
 };
 
 export default function App() {
+  // Tabs: 'text', 'file', or 'nfc'
+  const [activeTab, setActiveTab] = useState<'text' | 'file' | 'nfc'>('text');
+
   // Original Hashing States
   const [text, setText] = useState('');
   const [file, setFile] = useState<File | null>(null);
-  const [activeTab, setActiveTab] = useState<'text' | 'file'>('text');
 
   const [progress, setProgress] = useState<number | null>(null);
   const [progressBytes, setProgressBytes] = useState<{ read: number; total: number } | null>(null);
@@ -584,6 +587,19 @@ export default function App() {
           >
             <i className="fa-solid fa-file-arrow-up" aria-hidden="true" style={{ marginRight: '8px' }}></i>Envio de Arquivo
           </button>
+          <button
+            className={`tab-btn ${activeTab === 'nfc' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('nfc');
+              setText('');
+              setFile(null);
+              setProgress(null);
+              setProgressBytes(null);
+              setHashes(null);
+            }}
+          >
+            📡 NFC / RFID
+          </button>
         </div>
 
         {/* Main application body */}
@@ -838,6 +854,8 @@ export default function App() {
             </section>
           )}
 
+          {activeTab === 'nfc' && <NfcSection />}
+
           {error && (
             <div className="error-msg">
               <i className="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
@@ -877,16 +895,18 @@ export default function App() {
                 />
               </div>
 
-              <div className="results-grid">
-                {[
-                  { label: 'SHA-256', key: 'sha256' },
-                  { label: 'SHA-512', key: 'sha512' },
-                  { label: 'MD5', key: 'md5' },
-                  { label: 'BLAKE3', key: 'blake3' }
-                ].map(({ label, key }) => {
-                  const val = hashes ? hashes[key] : '';
-                  const hasMatchValue = compareHash.length > 0 && val && val.length > 0;
-                  const isMatch = val && val.toLowerCase() === compareHash;
+              <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div className="compare-box">
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: '0.8rem', color: 'var(--accent-light)', textTransform: 'uppercase', fontWeight: 700 }}>
+                    🔍 Comparar / Verificar Match do Hash
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="Cole um hash externo para verificar se há correspondência automática..."
+                    value={compareHash}
+                    onChange={(e) => setCompareHash(e.target.value.trim().toLowerCase())}
+                  />
+                </div>
 
                   return (
                     <div
@@ -928,21 +948,36 @@ export default function App() {
                             >
                               {copiedAlgo === label ? <i className="fa-solid fa-circle-check" aria-hidden="true"></i> : <i className="fa-solid fa-copy" aria-hidden="true"></i>} {copiedAlgo === label ? 'Copiado' : 'Copiar'}
                             </button>
+                          </div>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            {hasMatchValue && (
+                              <span className={`compare-status ${isMatch ? 'match' : 'mismatch'}`}>
+                                {isMatch ? '✓ Correspondente' : '✗ Diferente'}
+                              </span>
+                            )}
+                            {val && (
+                              <button
+                                className={`copy-btn ${copiedAlgo === label ? 'copied' : ''}`}
+                                onClick={() => copyToClipboard(label, val)}
+                              >
+                                {copiedAlgo === label ? '✓ Copiado' : '📋 Copiar'}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <div className={`hash-container ${key}`}>
+                          {val ? (
+                            <span className="hash">{val}</span>
+                          ) : (
+                            <span className="hash-placeholder">
+                              {isComputing ? 'Processando...' : 'Nenhuma entrada ainda gerada'}
+                            </span>
                           )}
                         </div>
                       </div>
-                      <div className={`hash-container ${key}`}>
-                        {val ? (
-                          <span className="hash">{val}</span>
-                        ) : (
-                          <span className="hash-placeholder">
-                            {isComputing ? 'Processando...' : 'Nenhuma entrada ainda gerada'}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </section>
@@ -956,29 +991,14 @@ export default function App() {
               </p>
             </div>
 
-            {/* Search and Category Filters Row */}
-            <div className="explorer-controls" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-              <div className="search-wrapper" style={{ position: 'relative', width: '100%' }}>
-                <input
-                  type="text"
-                  placeholder="Pesquise por nome de algoritmo ou palavras-chave nas descrições..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{
-                    width: '100%',
-                    background: 'rgba(3,3,5,0.7)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '8px',
-                    padding: '12px 16px',
-                    color: 'var(--text)',
-                    fontFamily: 'var(--mono)',
-                    fontSize: '0.9rem',
-                    outline: 'none',
-                    transition: 'border-color 0.3s ease'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = 'var(--accent-light)'}
-                  onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
-                />
+          {/* New Expanded Algorithms Explorer Interface hidden for NFC tab */}
+          {activeTab !== 'nfc' && (
+            <section className="premium-card algos-explorer">
+              <div className="explorer-header" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '16px', marginBottom: '20px' }}>
+                <h2 style={{ border: 'none', margin: 0, padding: 0 }}>⚙️ Explorer de Algoritmos Completo</h2>
+                <p style={{ margin: '8px 0 0 0' }}>
+                  Pesquise e compare mais de 100 algoritmos de hashing criptográficos, somas de verificação, hashes rápidos e fuzzy.
+                </p>
               </div>
 
               <div className="category-filters-container" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -991,23 +1011,46 @@ export default function App() {
                     onClick={() => setSelectedCategory(cat)}
                     className={`filter-badge ${selectedCategory === cat ? 'active' : ''}`}
                     style={{
-                      background: selectedCategory === cat ? 'linear-gradient(135deg, var(--accent), var(--accent-light))' : 'rgba(255,255,255,0.03)',
-                      color: selectedCategory === cat ? '#050508' : 'var(--muted)',
+                      width: '100%',
+                      background: 'rgba(3,3,5,0.7)',
                       border: '1px solid var(--border)',
-                      borderRadius: '20px',
-                      padding: '6px 14px',
-                      fontSize: '0.8rem',
-                      cursor: 'pointer',
+                      borderRadius: '8px',
+                      padding: '12px 16px',
+                      color: 'var(--text)',
                       fontFamily: 'var(--mono)',
-                      fontWeight: selectedCategory === cat ? 700 : 500,
-                      transition: 'all 0.2s ease'
+                      fontSize: '0.9rem',
+                      outline: 'none',
+                      transition: 'border-color 0.3s ease'
                     }}
-                  >
-                    {cat}
-                  </button>
-                ))}
+                    onFocus={(e) => e.target.style.borderColor = 'var(--accent-light)'}
+                    onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+                  />
+                </div>
+
+                <div className="category-filters-container" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {categories.map(cat => (
+                    <button
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`filter-badge ${selectedCategory === cat ? 'active' : ''}`}
+                      style={{
+                        background: selectedCategory === cat ? 'linear-gradient(135deg, var(--accent), var(--accent-light))' : 'rgba(255,255,255,0.03)',
+                        color: selectedCategory === cat ? '#050508' : 'var(--muted)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '20px',
+                        padding: '6px 14px',
+                        fontSize: '0.8rem',
+                        cursor: 'pointer',
+                        fontFamily: 'var(--mono)',
+                        fontWeight: selectedCategory === cat ? 700 : 500,
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
 
             {/* Algorithms Grid */}
             <div className="explorer-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
@@ -1067,16 +1110,15 @@ export default function App() {
                           <i className="fa-solid fa-circle-info" aria-hidden="true"></i>
                         </button>
                       </div>
-                    </div>
 
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)' }}>
-                      {algo.description}
-                    </p>
+                      <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)' }}>
+                        {algo.description}
+                      </p>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '6px' }}>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--accent-light)', fontWeight: 700 }}>Recomendação:</span>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>{algo.recommendation}</span>
-                    </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '6px' }}>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--accent-light)', fontWeight: 700 }}>Recomendação:</span>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>{algo.recommendation}</span>
+                      </div>
 
                     {/* Rendering the actual hash if implemented */}
                     {algo.implemented && (
@@ -1108,43 +1150,36 @@ export default function App() {
                               </button>
                             )}
                           </div>
-                        </div>
 
-                        <div
-                          className="mini-hash-container"
-                          style={{
-                            background: 'rgba(3,3,5,0.7)',
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            fontFamily: 'var(--mono)',
-                            fontSize: '0.8rem',
-                            wordBreak: 'break-all',
-                            color: val ? 'var(--text)' : 'var(--muted-dark)',
-                            border: '1px solid rgba(255,255,255,0.02)'
-                          }}
-                        >
-                          {val ? val : (isComputing ? 'Processando...' : 'Nenhuma entrada gerada')}
+                          <div
+                            className="mini-hash-container"
+                            style={{
+                              background: 'rgba(3,3,5,0.7)',
+                              padding: '8px 12px',
+                              borderRadius: '4px',
+                              fontFamily: 'var(--mono)',
+                              fontSize: '0.8rem',
+                              wordBreak: 'break-all',
+                              color: val ? 'var(--text)' : 'var(--muted-dark)',
+                              border: '1px solid rgba(255,255,255,0.02)'
+                            }}
+                          >
+                            {val ? val : (isComputing ? 'Processando...' : 'Nenhuma entrada gerada')}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
+                  );
+                })}
 
-                    {/* Rendering unimplemented reason */}
-                    {!algo.implemented && algo.unimplementedReason && (
-                      <div style={{ fontSize: '0.78rem', color: 'var(--muted)', background: 'rgba(255,0,0,0.03)', padding: '8px 12px', borderRadius: '4px', borderLeft: '2px solid #ef4444' }}>
-                        <strong>Não implementado:</strong> {algo.unimplementedReason}
-                      </div>
-                    )}
+                {filteredAlgorithms.length === 0 && (
+                  <div style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)' }}>
+                    Nenhum algoritmo encontrado para "{searchQuery}" nesta categoria.
                   </div>
-                );
-              })}
-
-              {filteredAlgorithms.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)' }}>
-                  Nenhum algoritmo encontrado para "{searchQuery}" nesta categoria.
-                </div>
-              )}
-            </div>
-          </section>
+                )}
+              </div>
+            </section>
+          )}
         </main>
 
         {/* Algorithm Detail Dialog/Modal popup */}
