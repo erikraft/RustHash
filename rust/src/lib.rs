@@ -6,10 +6,17 @@ use md5::Md5;
 use sha3::{Sha3_224, Sha3_256, Sha3_384, Sha3_512, Shake128, Shake256};
 use blake2::{Blake2s256, Blake2b512};
 use ripemd::Ripemd160;
+use ripemd::{Ripemd128, Ripemd256, Ripemd320};
 use md4::Md4;
 use md2::Md2;
 use whirlpool::Whirlpool;
 use sm3::Sm3;
+use gost94::Gost94CryptoPro;
+use streebog::Streebog256;
+use ascon_hash::AsconHash256;
+use jh::Jh256;
+use groestl::Groestl256;
+use skein::Skein512_256;
 use crc32fast::Hasher as Crc32;
 use adler::Adler32;
 use std::hash::Hasher as _;
@@ -335,6 +342,57 @@ impl Ripemd160Hasher {
 }
 
 #[wasm_bindgen]
+pub struct Ripemd128Hasher(Ripemd128);
+
+#[wasm_bindgen]
+impl Ripemd128Hasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Ripemd128Hasher {
+        Ripemd128Hasher(Ripemd128::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
+#[wasm_bindgen]
+pub struct Ripemd256Hasher(Ripemd256);
+
+#[wasm_bindgen]
+impl Ripemd256Hasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Ripemd256Hasher {
+        Ripemd256Hasher(Ripemd256::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
+#[wasm_bindgen]
+pub struct Ripemd320Hasher(Ripemd320);
+
+#[wasm_bindgen]
+impl Ripemd320Hasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Ripemd320Hasher {
+        Ripemd320Hasher(Ripemd320::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
+#[wasm_bindgen]
 pub struct Md4Hasher(Md4);
 
 #[wasm_bindgen]
@@ -393,6 +451,108 @@ impl Sm3Hasher {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Sm3Hasher {
         Sm3Hasher(Sm3::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
+#[wasm_bindgen]
+pub struct Gost94Hasher(Gost94CryptoPro);
+
+#[wasm_bindgen]
+impl Gost94Hasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Gost94Hasher {
+        Gost94Hasher(Gost94CryptoPro::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
+#[wasm_bindgen]
+pub struct StreebogHasher(Streebog256);
+
+#[wasm_bindgen]
+impl StreebogHasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> StreebogHasher {
+        StreebogHasher(Streebog256::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
+#[wasm_bindgen]
+pub struct AsconHashHasher(AsconHash256);
+
+#[wasm_bindgen]
+impl AsconHashHasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> AsconHashHasher {
+        AsconHashHasher(AsconHash256::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
+#[wasm_bindgen]
+pub struct JhHasher(Jh256);
+
+#[wasm_bindgen]
+impl JhHasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> JhHasher {
+        JhHasher(Jh256::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
+#[wasm_bindgen]
+pub struct GrostlHasher(Groestl256);
+
+#[wasm_bindgen]
+impl GrostlHasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> GrostlHasher {
+        GrostlHasher(Groestl256::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
+#[wasm_bindgen]
+pub struct SkeinHasher(Skein512_256);
+
+#[wasm_bindgen]
+impl SkeinHasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> SkeinHasher {
+        SkeinHasher(Skein512_256::new())
     }
     pub fn update(&mut self, chunk: &[u8]) {
         self.0.update(chunk);

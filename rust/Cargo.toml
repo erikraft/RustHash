@@ -23,6 +23,12 @@ adler = "1.0"
 xxhash-rust = { version = "0.8", features = ["xxh3", "const_xxh3", "xxh32"] }
 siphasher = "1.0"
 sha1 = "0.10"
+gost94 = "0.11"
+streebog = "0.11"
+ascon-hash = "0.4"
+jh = "0.2"
+groestl = "0.11"
+skein = "0.2"
 
 [dev-dependencies]
 hex = "0.4.3"
