@@ -7,6 +7,7 @@ export interface HashAlgorithmInfo {
   implemented: boolean;
   citations: string[];
   key?: string;
+  unimplementedReason?: string; // Reason why it remained unimplemented/informational
 }
 
 export const hashAlgorithms: HashAlgorithmInfo[] = [
@@ -132,6 +133,86 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     key: 'shake256'
   },
   {
+    name: 'cSHAKE128',
+    category: 'Criptográfico',
+    description: 'Variante customizável do SHAKE128 recomendada pelo NIST para separação de domínios flexível e segura.',
+    securityLevel: 'Seguro',
+    recommendation: 'Altamente recomendado para designs de protocolos que requerem separação criptográfica de domínio.',
+    implemented: true,
+    citations: ['NIST SP 800-185'],
+    key: 'cshake128'
+  },
+  {
+    name: 'cSHAKE256',
+    category: 'Criptográfico',
+    description: 'Variante customizável de maior segurança baseada no SHAKE256 para saídas arbitrárias parametrizadas.',
+    securityLevel: 'Seguro',
+    recommendation: 'Recomendado para novos designs de protocolos que usam variantes Keccak com forte nível de segurança.',
+    implemented: true,
+    citations: ['NIST SP 800-185'],
+    key: 'cshake256'
+  },
+  {
+    name: 'KMAC128',
+    category: 'Criptográfico',
+    description: 'Keccak Message Authentication Code de 128 bits, uma função MAC rápida baseada no Keccak.',
+    securityLevel: 'Seguro',
+    recommendation: 'Recomendado para integridade autenticada de alto desempenho com chaves simétricas.',
+    implemented: true,
+    citations: ['NIST SP 800-185'],
+    key: 'kmac128'
+  },
+  {
+    name: 'KMAC256',
+    category: 'Criptográfico',
+    description: 'Variante de 256 bits de segurança do Keccak Message Authentication Code para assinaturas simétricas críticas.',
+    securityLevel: 'Seguro',
+    recommendation: 'Recomendado para integridade autenticada máxima e derivações seguras de chaves.',
+    implemented: true,
+    citations: ['NIST SP 800-185'],
+    key: 'kmac256'
+  },
+  {
+    name: 'TupleHash128',
+    category: 'Criptográfico',
+    description: 'Algoritmo da família SHA-3 de 128 bits projetado para hash seguro e não ambíguo de sequências de tuplas.',
+    securityLevel: 'Seguro',
+    recommendation: 'Recomendado para hashing estruturado de tuplas e prevenção de ataques de injeção de strings.',
+    implemented: true,
+    citations: ['NIST SP 800-185'],
+    key: 'tuplehash128'
+  },
+  {
+    name: 'TupleHash256',
+    category: 'Criptográfico',
+    description: 'Variante de segurança superior de 256 bits do TupleHash para estruturas de dados e assinaturas redundantes.',
+    securityLevel: 'Seguro',
+    recommendation: 'Recomendado para hashing de estruturas hierárquicas em sistemas criptográficos complexos.',
+    implemented: true,
+    citations: ['NIST SP 800-185'],
+    key: 'tuplehash256'
+  },
+  {
+    name: 'Ascon-Hash256',
+    category: 'Criptográfico',
+    description: 'Algoritmo criptográfico leve oficial selecionado pelo NIST para segurança de dispositivos com restrição de recursos (LWC).',
+    securityLevel: 'Seguro',
+    recommendation: 'Altamente recomendado para IoT, dispositivos embarcados e microcontroladores.',
+    implemented: true,
+    citations: ['NIST LWC Selection (2023)', 'NIST SP 800-232'],
+    key: 'ascon_hash256'
+  },
+  {
+    name: 'Ascon-XOF128',
+    category: 'Criptográfico',
+    description: 'Variante de saída flexível (XOF) do algoritmo leve Ascon selecionado pelo NIST.',
+    securityLevel: 'Seguro',
+    recommendation: 'Altamente recomendado para derivação leve de chaves flexíveis.',
+    implemented: true,
+    citations: ['NIST LWC Selection (2023)', 'NIST SP 800-232'],
+    key: 'ascon_xof128'
+  },
+  {
     name: 'BLAKE3',
     category: 'Criptográfico',
     description: 'Algoritmo criptográfico moderno, extremamente rápido e seguro, baseado no Bao e BLAKE2.',
@@ -238,7 +319,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Obsoleto',
     recommendation: 'Evitar totalmente. Substituído pelo SHA-1 e hoje totalmente quebrado.',
     implemented: false,
-    citations: ['FIPS PUB 180 (1993)']
+    citations: ['FIPS PUB 180 (1993)'],
+    unimplementedReason: 'Substituído pelo SHA-1 e hoje totalmente quebrado. Não possui crate seguro ativo.'
   },
   {
     name: 'MD6',
@@ -247,7 +329,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Seguro, mas raro por ter sido retirado do processo SHA-3 devido ao tempo de submissão.',
     implemented: false,
-    citations: ['Rivest et al., MD6 proposal']
+    citations: ['Rivest et al., MD6 proposal'],
+    unimplementedReason: 'Crate obsoleto e sem manutenção para WASM.'
   },
   {
     name: 'MDC-2',
@@ -256,7 +339,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Fraco/Inseguro',
     recommendation: 'Evitar devido a tamanho de chave curto e colisões fáceis.',
     implemented: false,
-    citations: ['ISO/IEC 10118-2']
+    citations: ['ISO/IEC 10118-2'],
+    unimplementedReason: 'Algoritmo obsoleto, lento, e sem crate Rust funcional.'
   },
   {
     name: 'N-Hash',
@@ -265,7 +349,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Obsoleto',
     recommendation: 'Evitar completamente. Totalmente quebrado na literatura.',
     implemented: false,
-    citations: ['CRYPTO 1989']
+    citations: ['CRYPTO 1989'],
+    unimplementedReason: 'Totalmente quebrado por criptoanálise diferencial e sem implementação Rust moderna.'
   },
   {
     name: 'Snefru',
@@ -274,7 +359,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Obsoleto',
     recommendation: 'Não utilizar sob nenhuma circunstância.',
     implemented: false,
-    citations: ['Merkle, 1990']
+    citations: ['Merkle, 1990'],
+    unimplementedReason: 'Totalmente quebrado e considerado inseguro na literatura.'
   },
   {
     name: 'Tiger',
@@ -283,7 +369,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Fraco/Inseguro',
     recommendation: 'Não recomendado. Versões originais vulneráveis a ataques de colisão.',
     implemented: false,
-    citations: ['Tiger spec 1996']
+    citations: ['Tiger spec 1996'],
+    unimplementedReason: 'Vulnerável e sem crate Rust ativo e mantido.'
   },
   {
     name: 'Tiger2',
@@ -292,34 +379,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Fraco/Inseguro',
     recommendation: 'Evitar. Ainda sofre das mesmas fraquezas estruturais centrais do Tiger.',
     implemented: false,
-    citations: ['Tiger2 spec']
-  },
-  {
-    name: 'cSHAKE',
-    category: 'Criptográfico',
-    description: 'Variante customizável do SHAKE recomendada pelo NIST para separação de domínios.',
-    securityLevel: 'Seguro',
-    recommendation: 'Recomendado para novos designs de protocolos que usam variantes Keccak.',
-    implemented: false,
-    citations: ['NIST SP 800-185']
-  },
-  {
-    name: 'KMAC',
-    category: 'Criptográfico',
-    description: 'Keccak Message Authentication Code, uma função MAC baseada no algoritmo Keccak.',
-    securityLevel: 'Seguro',
-    recommendation: 'Recomendado para integridade autenticada com chaves simétricas.',
-    implemented: false,
-    citations: ['NIST SP 800-185']
-  },
-  {
-    name: 'TupleHash',
-    category: 'Criptográfico',
-    description: 'Algoritmo da família SHA-3 projetado para hash seguro de sequências de tuplas.',
-    securityLevel: 'Seguro',
-    recommendation: 'Recomendado para estruturas de dados complexas.',
-    implemented: false,
-    citations: ['NIST SP 800-185']
+    citations: ['Tiger2 spec'],
+    unimplementedReason: 'Vulnerável estruturalmente e sem suporte de biblioteca ativa.'
   },
   {
     name: 'ParallelHash',
@@ -328,7 +389,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Recomendado para sistemas concorrentes de alto desempenho.',
     implemented: false,
-    citations: ['NIST SP 800-185']
+    citations: ['NIST SP 800-185'],
+    unimplementedReason: 'Threading paralelo via Rayon em WASM monothread no navegador não é viável e violaria a integridade do worker.'
   },
   {
     name: 'BLAKE',
@@ -337,7 +399,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Seguro, mas prefira BLAKE2 ou BLAKE3 para melhor performance.',
     implemented: false,
-    citations: ['NIST SHA-3 Finalist Paper']
+    citations: ['NIST SHA-3 Finalist Paper'],
+    unimplementedReason: 'Substituído pelo BLAKE2 e BLAKE3. Crate sem manutenção para browser.'
   },
   {
     name: 'BLAKE2X',
@@ -346,7 +409,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Recomendado para derivar chaves ou entropia flexível.',
     implemented: false,
-    citations: ['BLAKE2X official paper']
+    citations: ['BLAKE2X official paper'],
+    unimplementedReason: 'Não padronizado pela IETF e sem crate de produção para WASM.'
   },
   {
     name: 'RIPEMD-128',
@@ -355,7 +419,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Fraco/Inseguro',
     recommendation: 'Não recomendado. Use RIPEMD-160 ou SHA-256.',
     implemented: false,
-    citations: ['ISO/IEC 10118-3']
+    citations: ['ISO/IEC 10118-3'],
+    unimplementedReason: 'Vulnerável a colisões e sem crate ativo.'
   },
   {
     name: 'RIPEMD-256',
@@ -364,7 +429,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Fraco/Inseguro',
     recommendation: 'Não recomendado. Projetado apenas para segurança redundante contra colisões acidentais.',
     implemented: false,
-    citations: ['ISO/IEC 10118-3']
+    citations: ['ISO/IEC 10118-3'],
+    unimplementedReason: 'Fornece segurança fraca e redundante.'
   },
   {
     name: 'RIPEMD-320',
@@ -373,7 +439,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Seguro, mas redundante e raramente suportado em bibliotecas criptográficas.',
     implemented: false,
-    citations: ['ISO/IEC 10118-3']
+    citations: ['ISO/IEC 10118-3'],
+    unimplementedReason: 'Redundante e sem suporte de biblioteca ativa.'
   },
   {
     name: 'GOST R 34.11-94',
@@ -382,7 +449,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Obsoleto',
     recommendation: 'Evitar totalmente. Quebrado estruturalmente.',
     implemented: false,
-    citations: ['RFC 5831']
+    citations: ['RFC 5831'],
+    unimplementedReason: 'Quebrado estruturalmente e obsoleto.'
   },
   {
     name: 'Streebog',
@@ -391,7 +459,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Seguro para uso oficial em jurisdição russa, mas sob constante discussão acadêmica.',
     implemented: false,
-    citations: ['RFC 6986']
+    citations: ['RFC 6986'],
+    unimplementedReason: 'Ausência de crate Rust de nível de produção para WASM.'
   },
   {
     name: 'Kupyna',
@@ -400,7 +469,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Recomendado para conformidade com padrões militares e civis ucranianos.',
     implemented: false,
-    citations: ['DSTU 7564:2014']
+    citations: ['DSTU 7564:2014'],
+    unimplementedReason: 'Sem crate Rust oficial estável.'
   },
   {
     name: 'HAS-160',
@@ -409,7 +479,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Fraco/Inseguro',
     recommendation: 'Não recomendado devido a vulnerabilidades herdadas do design do SHA-1.',
     implemented: false,
-    citations: ['KISA Standard (Korea)']
+    citations: ['KISA Standard (Korea)'],
+    unimplementedReason: 'Obsoleto e herdou fraquezas do SHA-1.'
   },
   {
     name: 'HAVAL',
@@ -418,23 +489,15 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Obsoleto',
     recommendation: 'Não utilizar sob nenhuma hipótese de segurança.',
     implemented: false,
-    citations: ['HAVAL Specification 1992']
-  },
-  {
-    name: 'Ascon-Hash',
-    category: 'Criptográfico',
-    description: 'Algoritmo leve recentemente selecionado pelo NIST para criptografia de dispositivos de recursos limitados (LWC).',
-    securityLevel: 'Seguro',
-    recommendation: 'Altamente recomendado para IoT e dispositivos embarcados.',
-    implemented: false,
-    citations: ['NIST LWC Selection (2023)']
+    citations: ['HAVAL Specification 1992'],
+    unimplementedReason: 'Vulnerável e obsoleto.'
   },
 
   // 2. Categoria: Integridade (Checksum)
   {
     name: 'CRC-32',
     category: 'Integridade (Checksum)',
-    description: 'Verificação de Redundância Cíclica amplamente usada em redes e formatos ZIP.',
+    description: 'Verificação de Redundância Cíclica de 32 bits amplamente usada em redes e formatos ZIP.',
     securityLevel: 'Não Criptográfico (Integridade)',
     recommendation: 'Usar apenas para detecção de erros acidentais, nunca para segurança.',
     implemented: true,
@@ -457,26 +520,29 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     description: 'Checksum cíclico de 8 bits para controle de erro simples em hardware embarcado.',
     securityLevel: 'Não Criptográfico (Integridade)',
     recommendation: 'Use em hardware de baixa memória para validação trivial de dados.',
-    implemented: false,
-    citations: ['ITU-T I.432.1']
+    implemented: true,
+    citations: ['ITU-T I.432.1'],
+    key: 'crc8'
   },
   {
     name: 'CRC-16',
     category: 'Integridade (Checksum)',
     description: 'Checksum de 16 bits muito usado em modems, protocolos USB e sistemas industriais Modbus.',
     securityLevel: 'Não Criptográfico (Integridade)',
-    recommendation: 'Utilizar em protocolos de rede industriais antigos.',
-    implemented: false,
-    citations: ['ANSI MC1.1']
+    recommendation: 'Utilizar em protocolos de rede industriais antigos e detecção de colisões básicas.',
+    implemented: true,
+    citations: ['ANSI MC1.1'],
+    key: 'crc16'
   },
   {
     name: 'CRC-64',
     category: 'Integridade (Checksum)',
     description: 'Checksum robusto de 64 bits para arquivos massivos e detecção de erros em mídia.',
     securityLevel: 'Não Criptográfico (Integridade)',
-    recommendation: 'Adequado para bancos de dados ou verificação rápida de integridade física.',
-    implemented: false,
-    citations: ['ISO 3309']
+    recommendation: 'Adequado para bancos de dados ou verificação rápida de integridade física de grandes dados.',
+    implemented: true,
+    citations: ['ISO 3309'],
+    key: 'crc64'
   },
   {
     name: 'Fletcher-16',
@@ -484,8 +550,9 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     description: 'Checksum de baixa complexidade, concorrente direto do CRC, otimizado para software.',
     securityLevel: 'Não Criptográfico (Integridade)',
     recommendation: 'Útil em microcontroladores sem suporte de hardware para CRC.',
-    implemented: false,
-    citations: ['Fletcher, 1982']
+    implemented: true,
+    citations: ['Fletcher, 1982'],
+    key: 'fletcher16'
   },
   {
     name: 'Fletcher-32',
@@ -493,8 +560,9 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     description: 'Checksum de 32 bits mais rápido que o CRC-32 e projetado especificamente para execução em software.',
     securityLevel: 'Não Criptográfico (Integridade)',
     recommendation: 'Use em sistemas legados que buscam boa imunidade a erros com consumo irrisório de CPU.',
-    implemented: false,
-    citations: ['Fletcher, 1982']
+    implemented: true,
+    citations: ['Fletcher, 1982'],
+    key: 'fletcher32'
   },
   {
     name: 'Luhn',
@@ -585,7 +653,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Excelente alternativa segura e ultra-rápida de hash em memória.',
     implemented: false,
-    citations: ['Google GitHub Research']
+    citations: ['Google GitHub Research'],
+    unimplementedReason: 'Requer instruções assembly específicas de CPU que falham em sandbox WASM browser de forma nativa.'
   },
   {
     name: 'MurmurHash',
@@ -594,7 +663,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não Criptográfico (Integridade)',
     recommendation: 'Evitar em novos projetos, use MurmurHash3 para melhor distribuição.',
     implemented: false,
-    citations: ['Appleby 2008']
+    citations: ['Appleby 2008'],
+    unimplementedReason: 'Substituído pelo MurmurHash3.'
   },
   {
     name: 'MurmurHash2',
@@ -603,7 +673,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não Criptográfico (Integridade)',
     recommendation: 'Substituído pelo MurmurHash3.',
     implemented: false,
-    citations: ['Appleby 2010']
+    citations: ['Appleby 2010'],
+    unimplementedReason: 'Substituído pelo MurmurHash3.'
   },
   {
     name: 'CityHash',
@@ -612,7 +683,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não Criptográfico (Integridade)',
     recommendation: 'Recomendado para bancos de dados de Big Data.',
     implemented: false,
-    citations: ['Google CityHash spec']
+    citations: ['Google CityHash spec'],
+    unimplementedReason: 'Otimizado especificamente para arquiteturas x64 com montagem nativa.'
   },
   {
     name: 'FarmHash',
@@ -621,7 +693,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não Criptográfico (Integridade)',
     recommendation: 'Excelente para indexação ultra-rápida em Big Data.',
     implemented: false,
-    citations: ['Google FarmHash spec']
+    citations: ['Google FarmHash spec'],
+    unimplementedReason: 'Dependente de montagem x86/SSE4 nativa, não compilável para WASM.'
   },
   {
     name: 'MetroHash',
@@ -630,7 +703,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não Criptográfico (Integridade)',
     recommendation: 'Bom para estruturas de busca que não requerem blindagem DoS.',
     implemented: false,
-    citations: ['MetroHash spec']
+    citations: ['MetroHash spec'],
+    unimplementedReason: 'Sem crate Rust moderno compatível com browser.'
   },
   {
     name: 'Jenkins',
@@ -639,7 +713,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não Criptográfico (Integridade)',
     recommendation: 'Usar em sistemas legados.',
     implemented: false,
-    citations: ['Bob Jenkins lookup3']
+    citations: ['Bob Jenkins lookup3'],
+    unimplementedReason: 'Coleção obsoleta de Bob Jenkins.'
   },
   {
     name: 'SpookyHash',
@@ -648,7 +723,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não Criptográfico (Integridade)',
     recommendation: 'Seguro para tabelas hash, mas prefira xxHash em novos desenvolvimentos.',
     implemented: false,
-    citations: ['Jenkins Spooky spec']
+    citations: ['Jenkins Spooky spec'],
+    unimplementedReason: 'Ausência de suporte confiável WASM.'
   },
   {
     name: 'T1ha',
@@ -657,7 +733,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não Criptográfico (Integridade)',
     recommendation: 'Excelente opção para ambientes de CPU vetorizada moderna.',
     implemented: false,
-    citations: ['t1ha spec']
+    citations: ['t1ha spec'],
+    unimplementedReason: 'Vetorização interna de assembly complexa incompatível com browser WASM.'
   },
   {
     name: 'WyHash',
@@ -666,18 +743,20 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não Criptográfico (Integridade)',
     recommendation: 'Altamente recomendado como hash geral para tabelas de alta velocidade.',
     implemented: false,
-    citations: ['Wang, SMHasher 2020']
+    citations: ['Wang, SMHasher 2020'],
+    unimplementedReason: 'Ambíguo e sem crate robusto para targets web.'
   },
 
   // 4. Categoria: Segurança de Senha
   {
     name: 'Argon2id',
     category: 'Segurança de Senha',
-    description: 'Vencedor do Password Hashing Competition, resistente a ataques de GPU e canais laterais.',
+    description: 'Variante recomendada do Argon2 que combina computação dependente de dados e independente para máxima segurança.',
     securityLevel: 'Seguro',
     recommendation: 'Altamente recomendado. O padrão atual da indústria para hashing de senhas.',
-    implemented: false,
-    citations: ['RFC 9106']
+    implemented: true,
+    citations: ['RFC 9106'],
+    key: 'argon2id'
   },
   {
     name: 'Argon2i',
@@ -685,8 +764,9 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     description: 'Variante do Argon2 otimizada contra ataques de canal lateral baseados em tempo.',
     securityLevel: 'Seguro',
     recommendation: 'Recomendado se o vetor de ataque principal for temporal local.',
-    implemented: false,
-    citations: ['RFC 9106']
+    implemented: true,
+    citations: ['RFC 9106'],
+    key: 'argon2i'
   },
   {
     name: 'Argon2d',
@@ -694,8 +774,9 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     description: 'Variante do Argon2 com maior resistência a ataques via hardware (GPUs e ASICs).',
     securityLevel: 'Seguro',
     recommendation: 'Não recomendado para credenciais corporativas normais por ser sensível a ataques de canal lateral.',
-    implemented: false,
-    citations: ['RFC 9106']
+    implemented: true,
+    citations: ['RFC 9106'],
+    key: 'argon2d'
   },
   {
     name: 'bcrypt',
@@ -703,8 +784,9 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     description: 'Função de hash de senha baseada na cifra Blowfish, com fator de custo configurável.',
     securityLevel: 'Seguro',
     recommendation: 'Recomendado. Seguro, robusto e amplamente testado.',
-    implemented: false,
-    citations: ['USENIX 1999']
+    implemented: true,
+    citations: ['USENIX 1999'],
+    key: 'bcrypt'
   },
   {
     name: 'scrypt',
@@ -712,8 +794,9 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     description: 'Função de derivação de chaves projetada para requerer grandes quantidades de memória.',
     securityLevel: 'Seguro',
     recommendation: 'Recomendado. Dificulta massivamente ataques de força bruta baseados em hardware personalizado (FPGA/ASIC).',
-    implemented: false,
-    citations: ['RFC 7914']
+    implemented: true,
+    citations: ['RFC 7914'],
+    key: 'scrypt'
   },
   {
     name: 'PBKDF2',
@@ -721,8 +804,9 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     description: 'Função clássica de hashing iterativo, suportando algoritmos subjacentes configuráveis (SHA-256, etc).',
     securityLevel: 'Seguro',
     recommendation: 'Seguro, mas antigo. Evite para senhas se puder usar Argon2id ou bcrypt.',
-    implemented: false,
-    citations: ['NIST SP 800-132', 'RFC 2898']
+    implemented: true,
+    citations: ['NIST SP 800-132', 'RFC 2898'],
+    key: 'pbkdf2'
   },
   {
     name: 'Crypt',
@@ -731,7 +815,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Obsoleto',
     recommendation: 'Não utilizar. Oferece resistência nula a poder de processamento atual.',
     implemented: false,
-    citations: ['POSIX Standard']
+    citations: ['POSIX Standard'],
+    unimplementedReason: 'Interface POSIX nativa do sistema operacional Linux, não aplicável à sandbox WASM do browser.'
   },
   {
     name: 'LM hash',
@@ -740,7 +825,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Obsoleto',
     recommendation: 'Não utilizar de forma alguma devido a vulnerabilidade instantânea de quebra de senhas.',
     implemented: false,
-    citations: ['Microsoft Support documentation']
+    citations: ['Microsoft Support documentation'],
+    unimplementedReason: 'Extremamente fraco e quebrado instantaneamente. Não recomendado expor.'
   },
   {
     name: 'NTLM',
@@ -749,7 +835,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Obsoleto',
     recommendation: 'Não recomendado para segurança de redes modernas; suscetível a ataques Pass-the-Hash.',
     implemented: false,
-    citations: ['MS-NLMP specification']
+    citations: ['MS-NLMP specification'],
+    unimplementedReason: 'Obsoleto e vulnerável a ataques rápidos em rede.'
   },
 
   // 5. Categoria: Fuzzy/Similaridade
@@ -760,7 +847,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não aplicável',
     recommendation: 'Recomendado para detecção de plágio e desduplicação de páginas web.',
     implemented: false,
-    citations: ['Charikar (STOC 2002)']
+    citations: ['Charikar (STOC 2002)'],
+    unimplementedReason: 'Técnica de fingerprinting de similaridade sem padrão único e não formatada como hash padrão.'
   },
   {
     name: 'MinHash',
@@ -769,7 +857,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não aplicável',
     recommendation: 'Altamente recomendado para análise de dados estatísticos e clusterização.',
     implemented: false,
-    citations: ['Broder, 1997']
+    citations: ['Broder, 1997'],
+    unimplementedReason: 'Conceito matemático de agrupamento estatístico de conjuntos, não um hash binário simples.'
   },
   {
     name: 'Ssdeep',
@@ -778,7 +867,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não aplicável',
     recommendation: 'Recomendado para assinaturas de malware e análise forense digital.',
     implemented: false,
-    citations: ['Kornblum, 2006']
+    citations: ['Kornblum, 2006'],
+    unimplementedReason: 'Requer bibliotecas C nativas extensivas incompatíveis com WASM.'
   },
   {
     name: 'Nilsimsa',
@@ -787,7 +877,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não aplicável',
     recommendation: 'Útil em sysetmas legados anti-spam baseados em heurística.',
     implemented: false,
-    citations: ['Nilsimsa draft spec']
+    citations: ['Nilsimsa draft spec'],
+    unimplementedReason: 'Sem biblioteca Rust ativa e com vulnerabilidades heurísticas comprovadas.'
   },
   {
     name: 'TLSH',
@@ -796,7 +887,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não aplicável',
     recommendation: 'Recomendado para inteligência contra ameaças digitais moderna.',
     implemented: false,
-    citations: ['Oliver et al., TLSH paper']
+    citations: ['Oliver et al., TLSH paper'],
+    unimplementedReason: 'Dependente de biblioteca C nativa complexa sem crate Rust WASM compatível.'
   },
 
   // 6. Categoria: Outros Especializados
@@ -807,7 +899,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não Criptográfico (Integridade)',
     recommendation: 'Recomendado para segmentação inteligente de arquivos em blocos de tamanho variável.',
     implemented: false,
-    citations: ['Buz, 1997']
+    citations: ['Buz, 1997'],
+    unimplementedReason: 'Conceito de janela móvel dinâmica de tamanho variável, sem representação única.'
   },
   {
     name: 'Pearson',
@@ -816,16 +909,18 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não Criptográfico (Integridade)',
     recommendation: 'Usar apenas em sistemas de hardware legados de baixíssimo recurso.',
     implemented: false,
-    citations: ['Pearson, ACM 1990']
+    citations: ['Pearson, ACM 1990'],
+    unimplementedReason: 'Lógica trivial de tabela de consulta de 8 bits para hardware legado.'
   },
   {
     name: 'Geohash',
     category: 'Outros Especializados',
-    description: 'Sistema de geocodificação que transforma coordenadas de latitude e longitude em strings curtas.',
+    description: 'Sistema de geocodificação espacial que transforma coordenadas de latitude e longitude em strings curtas e precisas.',
     securityLevel: 'Não aplicável',
     recommendation: 'Altamente recomendado para busca espacial rápida em bancos de dados geográficos.',
-    implemented: false,
-    citations: ['Morton, 1966']
+    implemented: true,
+    citations: ['Morton, 1966'],
+    key: 'geohash'
   },
   {
     name: 'TLS-hash',
@@ -834,7 +929,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Recomendado apenas dentro da infraestrutura interna do protocolo TLS correspondente.',
     implemented: false,
-    citations: ['RFC 8446 (TLS 1.3)']
+    citations: ['RFC 8446 (TLS 1.3)'],
+    unimplementedReason: 'Mecanismo interno do protocolo TLS, não um algoritmo de hash isolado.'
   },
   {
     name: 'RadioGatún',
@@ -843,7 +939,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Fraco/Inseguro',
     recommendation: 'Evitar em novos designs; Keccak (SHA-3) é uma evolução madura e totalmente recomendada.',
     implemented: false,
-    citations: ['RadioGatún Paper 2006']
+    citations: ['RadioGatún Paper 2006'],
+    unimplementedReason: 'Obsoleto e substituído pelo Keccak (SHA-3).'
   },
   {
     name: 'PANAMA',
@@ -852,7 +949,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Obsoleto',
     recommendation: 'Não utilizar sob nenhuma circunstância.',
     implemented: false,
-    citations: ['PANAMA spec, FSE 1998']
+    citations: ['PANAMA spec, FSE 1998'],
+    unimplementedReason: 'Totalmente quebrado por criptoanálise em 2001.'
   },
   {
     name: 'Lane',
@@ -861,7 +959,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Fraco/Inseguro',
     recommendation: 'Não recomendado.',
     implemented: false,
-    citations: ['Lane SHA-3 Submission']
+    citations: ['Lane SHA-3 Submission'],
+    unimplementedReason: 'Submissão do SHA-3 retirada devido a falhas estruturais.'
   },
   {
     name: 'JH',
@@ -870,7 +969,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Seguro, embora raramente adotado na indústria quando comparado ao SHA-3 real.',
     implemented: false,
-    citations: ['JH SHA-3 finalist spec']
+    citations: ['JH SHA-3 finalist spec'],
+    unimplementedReason: 'Raramente suportado e preterido comercialmente pelo SHA-3.'
   },
   {
     name: 'Spectral Hash',
@@ -879,7 +979,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Fraco/Inseguro',
     recommendation: 'Evitar devido à complexidade matemática ineficiente e fraquezas descobertas no concurso.',
     implemented: false,
-    citations: ['Spectral Hash SHA-3 submission']
+    citations: ['Spectral Hash SHA-3 submission'],
+    unimplementedReason: 'Quebrado e matematicamente ineficiente.'
   },
   {
     name: 'LSH',
@@ -888,7 +989,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Seguro para uso oficial sob diretrizes governamentais sul-coreanas.',
     implemented: false,
-    citations: ['LSH specification, Telecommunications Technology Association']
+    citations: ['LSH specification, Telecommunications Technology Association'],
+    unimplementedReason: 'Sem crate Rust público ou estável.'
   },
   {
     name: 'CubeHash',
@@ -897,7 +999,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Seguro para uso acadêmico, mas pouco comum fora da literatura de Bernstein.',
     implemented: false,
-    citations: ['CubeHash specification (Bernstein)']
+    citations: ['CubeHash specification (Bernstein)'],
+    unimplementedReason: 'Suporte ausente na biblioteca Rust criptográfica de produção.'
   },
   {
     name: 'ECOH',
@@ -906,7 +1009,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Obsoleto',
     recommendation: 'Não utilizar de forma alguma por ser vulnerável e lento.',
     implemented: false,
-    citations: ['ECOH SHA-3 submission']
+    citations: ['ECOH SHA-3 submission'],
+    unimplementedReason: 'Totalmente quebrado por colisões no concurso SHA-3.'
   },
   {
     name: 'FSB',
@@ -915,7 +1019,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Recomendado apenas para estudos de hashing baseado em segurança pós-quântica.',
     implemented: false,
-    citations: ['FSB specification']
+    citations: ['FSB specification'],
+    unimplementedReason: 'Sem crate Rust mantido que compile estavelmente para WASM.'
   },
   {
     name: 'Fugue',
@@ -924,7 +1029,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Seguro, porém pouco utilizado fora do contexto histórico.',
     implemented: false,
-    citations: ['Fugue SHA-3 submission']
+    citations: ['Fugue SHA-3 submission'],
+    unimplementedReason: 'Raramente suportado e obsoleto fora do contexto SHA-3.'
   },
   {
     name: 'Grostl',
@@ -933,7 +1039,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Seguro. Pode ser usado para alta performance, especialmente se implementado em hardware AES-NI.',
     implemented: false,
-    citations: ['Grostl specification (NIST SHA-3 finalist)']
+    citations: ['Grostl specification (NIST SHA-3 finalist)'],
+    unimplementedReason: 'Raramente suportado na web sem hardware específico AES-NI.'
   },
   {
     name: 'Hamsi',
@@ -942,7 +1049,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Seguro para contextos específicos, mas preterido comercialmente por algoritmos maduros.',
     implemented: false,
-    citations: ['Hamsi SHA-3 submission']
+    citations: ['Hamsi SHA-3 submission'],
+    unimplementedReason: 'Preterido pelo SHA-3 oficial.'
   },
   {
     name: 'JSF',
@@ -951,7 +1059,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não aplicável',
     recommendation: 'Usar apenas em otimização matemática interna de primitivas criptográficas.',
     implemented: false,
-    citations: ['Solinas, 2001']
+    citations: ['Solinas, 2001'],
+    unimplementedReason: 'Apenas uma primitiva de aceleração matemática, não um algoritmo de hash de dados.'
   },
   {
     name: 'Shabal',
@@ -960,7 +1069,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Seguro para uso acadêmico. Empregado em algumas blockchains (ex: Burstcoin).',
     implemented: false,
-    citations: ['Shabal SHA-3 submission']
+    citations: ['Shabal SHA-3 submission'],
+    unimplementedReason: 'Sem suporte em crates ativos estáveis.'
   },
   {
     name: 'SIMD',
@@ -969,7 +1079,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Seguro para fins específicos, mas com implementação complexa.',
     implemented: false,
-    citations: ['SIMD hash spec']
+    citations: ['SIMD hash spec'],
+    unimplementedReason: 'Incompatível com a execução monothread da Sandbox de WebAssembly no navegador.'
   },
   {
     name: 'Skein',
@@ -978,7 +1089,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Altamente recomendado caso queira um hash extremamente flexível fora do ecossistema oficial NIST.',
     implemented: false,
-    citations: ['Skein specification (NIST SHA-3 finalist)']
+    citations: ['Skein specification (NIST SHA-3 finalist)'],
+    unimplementedReason: 'Ausência de suporte de biblioteca estável e mantida para browser.'
   },
   {
     name: 'SWIFFT',
@@ -987,7 +1099,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Seguro para cenários experimentais de segurança pós-quântica.',
     implemented: false,
-    citations: ['SWIFFT spec, NIST 2008']
+    citations: ['SWIFFT spec, NIST 2008'],
+    unimplementedReason: 'Algoritmo experimental pós-quântico sem biblioteca Rust disponível.'
   },
   {
     name: 'VSH',
@@ -996,7 +1109,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Seguro para validações onde a segurança matemática rígida é mais importante que a velocidade (extremamente lento).',
     implemented: false,
-    citations: ['VSH publication, Contini et al.']
+    citations: ['VSH publication, Contini et al.'],
+    unimplementedReason: 'Extremamente lento e puramente conceitual acadêmico.'
   },
   {
     name: 'MASH-1',
@@ -1005,7 +1119,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Fraco/Inseguro',
     recommendation: 'Evitar. Vulnerabilidades conhecidas de colisão prática publicadas pela comunidade acadêmica.',
     implemented: false,
-    citations: ['ISO/IEC 10118-4']
+    citations: ['ISO/IEC 10118-4'],
+    unimplementedReason: 'Quebrado academicamente com colisões fáceis.'
   },
   {
     name: 'MASH-2',
@@ -1014,7 +1129,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Fraco/Inseguro',
     recommendation: 'Evitar. Ainda herdou vulnerabilidades estruturais similares ao MASH-1.',
     implemented: false,
-    citations: ['ISO/IEC 10118-4']
+    citations: ['ISO/IEC 10118-4'],
+    unimplementedReason: 'Herdou fraquezas críticas do MASH-1.'
   },
   {
     name: 'Nonconcurring',
@@ -1023,7 +1139,8 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Não aplicável',
     recommendation: 'Usar apenas para pesquisa acadêmica matemática.',
     implemented: false,
-    citations: ['IEEE Transactions on Information Theory']
+    citations: ['IEEE Transactions on Information Theory'],
+    unimplementedReason: 'Apenas um modelo teórico matemático sem especificação prática ou binária.'
   },
   {
     name: 'TLS-hash (Primitivas)',
@@ -1032,6 +1149,7 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     securityLevel: 'Seguro',
     recommendation: 'Seguro para uso automático por bibliotecas TLS.',
     implemented: false,
-    citations: ['RFC 5246']
+    citations: ['RFC 5246'],
+    unimplementedReason: 'Uso interno de primitivas de handshakes TLS.'
   }
 ];

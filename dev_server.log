@@ -1,0 +1,26 @@
+
+> rusthash-root@0.1.0 dev
+> npm run build:wasm && npm run --prefix frontend dev
+
+
+> rusthash-root@0.1.0 build:wasm
+> wasm-pack build rust --out-dir ../frontend/src/pkg --target web
+
+[INFO]: 🎯  Checking for the Wasm target...
+[INFO]: 🌀  Compiling to Wasm...
+    Finished `release` profile [optimized] target(s) in 0.08s
+[INFO]: ⬇️  Installing wasm-bindgen...
+[INFO]: Optimizing wasm binaries with `wasm-opt`...
+[INFO]: Optional fields missing from Cargo.toml: 'description', 'repository', and 'license'. These are not necessary, but recommended
+[INFO]: ✨   Done in 6.12s
+[INFO]: 📦   Your wasm pkg is ready to publish at frontend/src/pkg.
+
+> hash-generator-frontend@0.1.0 dev
+> vite
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+  VITE v5.2.0  ready in 552 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose

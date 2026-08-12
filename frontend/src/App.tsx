@@ -40,6 +40,37 @@ export default function App() {
   const [charIndex, setCharIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // --- Parameter Configuration States ---
+  const [cshakeCustomization, setCshakeCustomization] = useState('');
+  const [kmacKey, setKmacKey] = useState('key');
+  const [kmacCustomization, setKmacCustomization] = useState('');
+  const [tuplehashCustomization, setTuplehashCustomization] = useState('');
+
+  const [argon2Salt, setArgon2Salt] = useState('salt12345');
+  const [argon2m, setArgon2m] = useState(4096);
+  const [argon2t, setArgon2t] = useState(3);
+  const [argon2p, setArgon2p] = useState(1);
+  const [argon2len, setArgon2outLen] = useState(32);
+
+  const [bcryptCost, setBcryptCost] = useState(10);
+
+  const [scryptSalt, setScryptSalt] = useState('scrypt_salt');
+  const [scryptN, setScryptN] = useState(10);
+  const [scryptR, setScryptR] = useState(8);
+  const [scryptP, setScryptP] = useState(1);
+  const [scryptLen, setScryptLen] = useState(32);
+
+  const [pbkdf2Salt, setPbkdf2Salt] = useState('salt');
+  const [pbkdf2Iter, setPbkdf2Iter] = useState(1000);
+  const [pbkdf2Len, setPbkdf2Len] = useState(32);
+  const [pbkdf2Prf, setPbkdf2Prf] = useState('sha256');
+
+  const [geoLat, setGeoLat] = useState(37.8324);
+  const [geoLon, setGeoLon] = useState(112.5584);
+  const [geoPrecision, setGeoPrecision] = useState(9);
+
+  const [showParams, setShowParams] = useState(false);
+
   const workerRef = useRef<Worker | null>(null);
 
   // Favicon animation effect alternating every 1000ms
@@ -189,10 +220,37 @@ export default function App() {
     };
 
     workerRef.current = worker;
-    worker.postMessage({ type, data });
+
+    // Gather parameter block to send to the worker
+    const params = {
+      cshake_customization: cshakeCustomization,
+      kmac_key: kmacKey,
+      kmac_customization: kmacCustomization,
+      tuplehash_customization: tuplehashCustomization,
+      argon2_salt: argon2Salt,
+      argon2_m_cost: argon2m,
+      argon2_t_cost: argon2t,
+      argon2_p_cost: argon2p,
+      argon2_out_len: argon2len,
+      bcrypt_cost: bcryptCost,
+      scrypt_salt: scryptSalt,
+      scrypt_log_n: scryptN,
+      scrypt_r: scryptR,
+      scrypt_p: scryptP,
+      scrypt_out_len: scryptLen,
+      pbkdf2_salt: pbkdf2Salt,
+      pbkdf2_iterations: pbkdf2Iter,
+      pbkdf2_out_len: pbkdf2Len,
+      pbkdf2_prf: pbkdf2Prf,
+      geohash_latitude: geoLat,
+      geohash_longitude: geoLon,
+      geohash_precision: geoPrecision
+    };
+
+    worker.postMessage({ type, data, params });
   };
 
-  // Debounced hashing for text input
+  // Debounced hashing for text input and parameters
   useEffect(() => {
     if (activeTab === 'text') {
       const timer = setTimeout(() => {
@@ -200,7 +258,15 @@ export default function App() {
       }, 250);
       return () => clearTimeout(timer);
     }
-  }, [text, activeTab]);
+  }, [
+    text, activeTab,
+    cshakeCustomization, kmacKey, kmacCustomization, tuplehashCustomization,
+    argon2Salt, argon2m, argon2t, argon2p, argon2len,
+    bcryptCost,
+    scryptSalt, scryptN, scryptR, scryptP, scryptLen,
+    pbkdf2Salt, pbkdf2Iter, pbkdf2Len, pbkdf2Prf,
+    geoLat, geoLon, geoPrecision
+  ]);
 
   // Handle file select
   const handleFileChange = (selectedFile: File | null) => {
@@ -391,7 +457,7 @@ export default function App() {
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Digite ou cole seu texto aqui para computar os hashes criptográficos localmente..."
               />
-              <div className="controls">
+              <div className="controls" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <button
                   className="btn btn-secondary"
                   onClick={() => {
@@ -402,7 +468,162 @@ export default function App() {
                 >
                   Limpar
                 </button>
+
+                <button
+                  className="btn btn-secondary"
+                  style={{
+                    background: 'rgba(255,255,255,0.02)',
+                    borderColor: 'var(--accent)',
+                    color: 'var(--accent-light)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onClick={() => setShowParams(!showParams)}
+                >
+                  <span>⚙️</span>
+                  <span>{showParams ? 'Ocultar Parâmetros' : 'Configurar Parâmetros de Algoritmos'}</span>
+                </button>
               </div>
+
+              {/* Collapsible Parameter Adjustment Panel */}
+              {showParams && (
+                <div
+                  className="parameter-panel"
+                  style={{
+                    marginTop: '20px',
+                    padding: '20px',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    background: 'rgba(5,5,10,0.85)',
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '24px',
+                    textAlign: 'left'
+                  }}
+                >
+                  <div style={{ gridColumn: 'span 2', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
+                    <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--accent-light)' }}>⚙️ Ajustar Parâmetros Customizados</h3>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: 'var(--muted)' }}>
+                      Personalize as chaves, salts e custos de processamento. Os hashes correspondentes atualizarão em tempo real.
+                    </p>
+                  </div>
+
+                  {/* cSHAKE & KMAC params */}
+                  <div>
+                    <h4 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', color: '#fff' }}>cSHAKE & KMAC</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem' }}>
+                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ color: 'var(--muted)' }}>cSHAKE Customization String:</span>
+                        <input type="text" value={cshakeCustomization} onChange={(e) => setCshakeCustomization(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                      </label>
+                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ color: 'var(--muted)' }}>KMAC Key (chave simétrica):</span>
+                        <input type="text" value={kmacKey} onChange={(e) => setKmacKey(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                      </label>
+                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ color: 'var(--muted)' }}>KMAC Customization:</span>
+                        <input type="text" value={kmacCustomization} onChange={(e) => setKmacCustomization(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                      </label>
+                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ color: 'var(--muted)' }}>TupleHash Customization:</span>
+                        <input type="text" value={tuplehashCustomization} onChange={(e) => setTuplehashCustomization(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Argon2 parameters */}
+                  <div>
+                    <h4 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', color: '#fff' }}>Argon2 (id/i/d)</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.8rem' }}>
+                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', gridColumn: 'span 2' }}>
+                        <span style={{ color: 'var(--muted)' }}>Salt:</span>
+                        <input type="text" value={argon2Salt} onChange={(e) => setArgon2Salt(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                      </label>
+                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ color: 'var(--muted)' }}>Memory Cost (KB):</span>
+                        <input type="number" value={argon2m} onChange={(e) => setArgon2m(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                      </label>
+                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ color: 'var(--muted)' }}>Iterations:</span>
+                        <input type="number" value={argon2t} onChange={(e) => setArgon2t(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                      </label>
+                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ color: 'var(--muted)' }}>Parallelism:</span>
+                        <input type="number" value={argon2p} onChange={(e) => setArgon2p(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                      </label>
+                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ color: 'var(--muted)' }}>Out Length (Bytes):</span>
+                        <input type="number" value={argon2len} onChange={(e) => setArgon2outLen(Math.max(4, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* scrypt, bcrypt, PBKDF2 */}
+                  <div>
+                    <h4 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', color: '#fff' }}>scrypt, bcrypt & PBKDF2</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span style={{ color: 'var(--muted)' }}>bcrypt Cost:</span>
+                          <input type="number" value={bcryptCost} onChange={(e) => setBcryptCost(Math.max(4, Math.min(31, Number(e.target.value))))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        </label>
+                        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span style={{ color: 'var(--muted)' }}>scrypt Log(N):</span>
+                          <input type="number" value={scryptN} onChange={(e) => setScryptN(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        </label>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span style={{ color: 'var(--muted)' }}>scrypt r:</span>
+                          <input type="number" value={scryptR} onChange={(e) => setScryptR(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        </label>
+                        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span style={{ color: 'var(--muted)' }}>scrypt p:</span>
+                          <input type="number" value={scryptP} onChange={(e) => setScryptP(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        </label>
+                        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span style={{ color: 'var(--muted)' }}>scrypt out len:</span>
+                          <input type="number" value={scryptLen} onChange={(e) => setScryptLen(Math.max(4, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        </label>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span style={{ color: 'var(--muted)' }}>PBKDF2 Iterations:</span>
+                          <input type="number" value={pbkdf2Iter} onChange={(e) => setPbkdf2Iter(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        </label>
+                        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span style={{ color: 'var(--muted)' }}>PBKDF2 PRF:</span>
+                          <select value={pbkdf2Prf} onChange={(e) => setPbkdf2Prf(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px', height: '31px' }}>
+                            <option value="sha256">SHA-256</option>
+                            <option value="sha512">SHA-512</option>
+                            <option value="sha1">SHA-1</option>
+                          </select>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Geohash Parameters */}
+                  <div>
+                    <h4 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', color: '#fff' }}>Geohash (Sistema Espacial)</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem' }}>
+                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ color: 'var(--muted)' }}>Latitude (-90.0 a 90.0):</span>
+                        <input type="number" step="0.0001" value={geoLat} onChange={(e) => setGeoLat(Number(e.target.value))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                      </label>
+                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ color: 'var(--muted)' }}>Longitude (-180.0 a 180.0):</span>
+                        <input type="number" step="0.0001" value={geoLon} onChange={(e) => setGeoLon(Number(e.target.value))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                      </label>
+                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ color: 'var(--muted)' }}>Precisão (tamanho da string):</span>
+                        <input type="number" value={geoPrecision} onChange={(e) => setGeoPrecision(Math.max(1, Math.min(12, Number(e.target.value))))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              )}
             </section>
           )}
 
@@ -516,8 +737,8 @@ export default function App() {
                   { label: 'BLAKE3', key: 'blake3' }
                 ].map(({ label, key }) => {
                   const val = hashes ? hashes[key] : '';
-                  const hasMatchValue = compareHash.length > 0 && val.length > 0;
-                  const isMatch = val.toLowerCase() === compareHash;
+                  const hasMatchValue = compareHash.length > 0 && val && val.length > 0;
+                  const isMatch = val && val.toLowerCase() === compareHash;
 
                   return (
                     <div className="result-card" key={label}>
@@ -538,7 +759,7 @@ export default function App() {
                         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                           {hasMatchValue && (
                             <span className={`compare-status ${isMatch ? 'match' : 'mismatch'}`}>
-                              {isMatch ? '✓ Correspondente' : '✗ Diferente'}
+                              {isMatch ? '✓ Match' : '✗ Different'}
                             </span>
                           )}
                           {val && (
@@ -633,6 +854,9 @@ export default function App() {
                 const resultsKey = algo.key || algo.name.toLowerCase().replace(/-|\//g, '_');
                 const val = hashes ? hashes[resultsKey] : '';
                 const hasMatchValue = compareHash.length > 0 && val && val.length > 0;
+
+                // Categorize verification types cleanly
+                const isValidationDecimal = algo.category === 'Integridade (Checksum)' && ['Luhn', 'Verhoeff', 'Damm'].includes(algo.name);
                 const isMatch = val && val.toLowerCase() === compareHash;
 
                 return (
@@ -691,11 +915,17 @@ export default function App() {
                     {algo.implemented && (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--muted-dark)', fontFamily: 'var(--mono)' }}>HASH OUTPUT:</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--muted-dark)', fontFamily: 'var(--mono)' }}>
+                            {isValidationDecimal ? 'DÍGITO VERIFICADOR / CHECKSUM:' : 'OUTPUT:'}
+                          </span>
                           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                             {hasMatchValue && (
                               <span className={`compare-status ${isMatch ? 'match' : 'mismatch'}`} style={{ fontSize: '0.75rem' }}>
-                                {isMatch ? '✓ Match' : '✗ Mismatch'}
+                                {isValidationDecimal ? (
+                                  isMatch ? '✓ Válido (Check Digit Match)' : '✗ Check Digit Mismatch'
+                                ) : (
+                                  isMatch ? '✓ Match' : '✗ Mismatch'
+                                )}
                               </span>
                             )}
                             {val && (
@@ -725,6 +955,13 @@ export default function App() {
                         >
                           {val ? val : (isComputing ? 'Processando...' : 'Nenhuma entrada gerada')}
                         </div>
+                      </div>
+                    )}
+
+                    {/* Rendering unimplemented reason */}
+                    {!algo.implemented && algo.unimplementedReason && (
+                      <div style={{ fontSize: '0.78rem', color: 'var(--muted)', background: 'rgba(255,0,0,0.03)', padding: '8px 12px', borderRadius: '4px', borderLeft: '2px solid #ef4444' }}>
+                        <strong>Não implementado:</strong> {algo.unimplementedReason}
                       </div>
                     )}
                   </div>
