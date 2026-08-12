@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { hashAlgorithms, HashAlgorithmInfo } from './hashRegistry';
 
 export default function App() {
   // Original Hashing States
@@ -8,12 +9,9 @@ export default function App() {
 
   const [progress, setProgress] = useState<number | null>(null);
   const [progressBytes, setProgressBytes] = useState<{ read: number; total: number } | null>(null);
-  const [hashes, setHashes] = useState<{
-    sha256: string;
-    sha512: string;
-    md5: string;
-    blake3: string;
-  } | null>(null);
+
+  // Dynamic hashes map supporting all algorithms
+  const [hashes, setHashes] = useState<Record<string, string> | null>(null);
   const [isComputing, setIsComputing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copiedAlgo, setCopiedAlgo] = useState<string | null>(null);
@@ -21,6 +19,13 @@ export default function App() {
 
   // Hash Comparison State
   const [compareHash, setCompareHash] = useState('');
+
+  // UI Search and Filter States for Algorithms
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
+
+  // Selected Algorithm detail modal/tooltip state
+  const [activeInfoAlgo, setActiveInfoAlgo] = useState<HashAlgorithmInfo | null>(null);
 
   // Terminal Booting States for Site Loader
   const [isBooting, setIsBooting] = useState(true);
@@ -61,7 +66,6 @@ export default function App() {
     const commandText = "init --rust-hash";
     let cmdIndex = 0;
 
-    // Phase 1: Type Command
     const typingInterval = setInterval(() => {
       if (cmdIndex < commandText.length) {
         setBootCommand(prev => prev + commandText[cmdIndex]);
@@ -69,15 +73,13 @@ export default function App() {
       } else {
         clearInterval(typingInterval);
 
-        // Phase 2: Start sequentially outputting log steps
         setTimeout(() => {
-          setLogSteps(1); // Show first log
+          setLogSteps(1);
           setTimeout(() => {
-            setLogSteps(2); // Show second log
+            setLogSteps(2);
             setTimeout(() => {
-              setLogSteps(3); // Show third log
+              setLogSteps(3);
 
-              // Phase 3: Increment progress bar
               let prog = 0;
               const progressInterval = setInterval(() => {
                 if (prog < 100) {
@@ -86,7 +88,6 @@ export default function App() {
                 } else {
                   clearInterval(progressInterval);
 
-                  // Phase 4: Final line and close loader
                   setLogSteps(4);
                   setTimeout(() => {
                     setShowFinalPrompt(true);
@@ -112,10 +113,10 @@ export default function App() {
     if (isBooting) return;
 
     const phrases = [
-      'Privacy-first local hashing',
-      'Built with Rust + WebAssembly',
-      'Asynchronous Web Worker processing',
-      'Drag & Drop modern visual interface'
+      'Privacidade em primeiro lugar: processamento local',
+      'Construído com Rust + WebAssembly ultra-rápido',
+      'Execução paralela assíncrona via Web Workers',
+      'Interface moderna com Drag & Drop de arquivos'
     ];
 
     let timer: NodeJS.Timeout;
@@ -155,13 +156,11 @@ export default function App() {
     setProgressBytes(null);
     setHashes(null);
 
-    // Terminate any previous worker running to cancel current operation immediately
     if (workerRef.current) {
       console.log("Terminating existing worker");
       workerRef.current.terminate();
     }
 
-    // Spin up a new worker
     console.log("Instantiating new Worker...");
     const worker = new Worker(
       new URL('./hash.worker.ts', import.meta.url),
@@ -170,13 +169,12 @@ export default function App() {
 
     worker.onmessage = (event) => {
       const { type: responseType, progress: resProgress, bytesRead, totalBytes, results, error: responseError } = event.data;
-      console.log("Received worker message:", responseType, { resProgress, bytesRead, totalBytes, results, responseError });
 
       if (responseType === 'HASH_PROGRESS') {
         setProgress(resProgress);
         setProgressBytes({ read: bytesRead, total: totalBytes });
       } else if (responseType === 'HASH_SUCCESS') {
-        console.log("Hashing SUCCESS! Results:", results);
+        console.log("Hashing SUCCESS!");
         setHashes(results);
         setIsComputing(false);
         setProgress(null);
@@ -199,7 +197,7 @@ export default function App() {
     if (activeTab === 'text') {
       const timer = setTimeout(() => {
         startHashing('HASH_TEXT', text);
-      }, 250); // 250ms debounce
+      }, 250);
       return () => clearTimeout(timer);
     }
   }, [text, activeTab]);
@@ -256,13 +254,32 @@ export default function App() {
     }, 1500);
   };
 
-  // Render booting progress bar text helper
-  const getProgressBarText = (percent: number) => {
-    const totalBlocks = 20;
-    const filledBlocks = Math.round((percent / 100) * totalBlocks);
-    const emptyBlocks = totalBlocks - filledBlocks;
-    return "[" + "█".repeat(filledBlocks) + "░".repeat(emptyBlocks) + "]";
+  // Get Security Color helper
+  const getSecurityBadgeInfo = (level: HashAlgorithmInfo['securityLevel']) => {
+    switch (level) {
+      case 'Seguro':
+        return { text: 'SEGURO', className: 'badge-secure' };
+      case 'Fraco/Inseguro':
+        return { text: 'FRACASSO/VULNERÁVEL', className: 'badge-weak' };
+      case 'Obsoleto':
+        return { text: 'OBSOLETO/EVITAR', className: 'badge-obsolete' };
+      case 'Não Criptográfico (Integridade)':
+        return { text: 'NÃO-CRIPTOGRÁFICO', className: 'badge-checksum' };
+      default:
+        return { text: 'N/A', className: 'badge-na' };
+    }
   };
+
+  // Filter categories
+  const categories = ['Todos', 'Criptográfico', 'Integridade (Checksum)', 'Fast/Non-Cryptographic', 'Segurança de Senha', 'Fuzzy/Similaridade', 'Outros Especializados'];
+
+  // Filter & Search Logic
+  const filteredAlgorithms = hashAlgorithms.filter(algo => {
+    const matchesSearch = algo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          algo.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'Todos' || algo.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <>
@@ -279,31 +296,33 @@ export default function App() {
             {logSteps >= 1 && (
               <div className="loader-line" style={{ display: 'flex', opacity: 1 }}>
                 <span className="log-ok">[ OK ]</span>
-                <span>Resolving WebAssembly compilation targets...</span>
+                <span>Resolvendo alvos de compilação WebAssembly...</span>
               </div>
             )}
             {logSteps >= 2 && (
               <div className="loader-line" style={{ display: 'flex', opacity: 1 }}>
                 <span className="log-ok">[ OK ]</span>
-                <span>Wasm bindgen bindings verified.</span>
+                <span>Bindings do wasm-bindgen verificados com sucesso.</span>
               </div>
             )}
             {logSteps >= 3 && (
               <div className="loader-line" style={{ display: 'flex', opacity: 1 }}>
                 <span className="log-ok">[ OK ]</span>
-                <span>Instantiating background Web Worker context...</span>
+                <span>Instanciando contexto assíncrono do Web Worker...</span>
               </div>
             )}
             {bootProgress > 0 && (
               <div className="loader-line" style={{ display: 'flex', opacity: 1 }}>
-                <span className="progress-bar">{getProgressBarText(bootProgress)}</span>
+                <span className="progress-bar">
+                  {"[" + "█".repeat(Math.round(bootProgress / 5)) + "░".repeat(20 - Math.round(bootProgress / 5)) + "]"}
+                </span>
                 <span className="progress-percent">{bootProgress}%</span>
               </div>
             )}
             {logSteps >= 4 && (
               <div className="loader-line" style={{ display: 'flex', opacity: 1 }}>
                 <span className="log-ok">[ OK ]</span>
-                <span>Bootstrap process completed successfully.</span>
+                <span>Processo de inicialização concluído com sucesso.</span>
               </div>
             )}
             {showFinalPrompt && (
@@ -346,7 +365,7 @@ export default function App() {
               setHashes(null);
             }}
           >
-            ✍️ Text Input
+            ✍️ Entrada de Texto
           </button>
           <button
             className={`tab-btn ${activeTab === 'file' ? 'active' : ''}`}
@@ -358,7 +377,7 @@ export default function App() {
               setHashes(null);
             }}
           >
-            📁 File Upload
+            📁 Envio de Arquivo
           </button>
         </div>
 
@@ -366,11 +385,11 @@ export default function App() {
         <main>
           {activeTab === 'text' && (
             <section className="premium-card input-section">
-              <h2>✍️ Input String</h2>
+              <h2>✍️ String de Entrada</h2>
               <textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder="Type or paste your text here to compute local cryptographic hashes..."
+                placeholder="Digite ou cole seu texto aqui para computar os hashes criptográficos localmente..."
               />
               <div className="controls">
                 <button
@@ -381,7 +400,7 @@ export default function App() {
                   }}
                   disabled={!text}
                 >
-                  Clear
+                  Limpar
                 </button>
               </div>
             </section>
@@ -389,7 +408,7 @@ export default function App() {
 
           {activeTab === 'file' && (
             <section className="premium-card input-section">
-              <h2>📁 Select File</h2>
+              <h2>📁 Selecionar Arquivo</h2>
               <div
                 className={`dropzone ${isDragOver ? 'dragover' : ''}`}
                 onDragOver={handleDragOver}
@@ -398,9 +417,9 @@ export default function App() {
                 onClick={() => document.getElementById('fileInput')?.click()}
               >
                 <div className="dropzone-icon">📥</div>
-                <p style={{ fontWeight: 700 }}>Drag & drop your file here, or click to browse</p>
+                <p style={{ fontWeight: 700 }}>Arraste e solte seu arquivo aqui, ou clique para procurar</p>
                 <p style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>
-                  Files are processed 100% locally inside your browser via WASM. They are never transmitted over the internet.
+                  Os arquivos são processados 100% localmente no seu navegador via WASM, sem nunca trafegar pela internet.
                 </p>
                 <input
                   id="fileInput"
@@ -415,7 +434,7 @@ export default function App() {
                   <div className="file-details">
                     <span className="file-name">{file.name}</span>
                     <span className="file-meta">
-                      Size: {formatBytes(file.size)} | Type: {file.type || 'unknown'}
+                      Tamanho: {formatBytes(file.size)} | Tipo: {file.type || 'desconhecido'}
                     </span>
                   </div>
                   <button
@@ -429,7 +448,7 @@ export default function App() {
                       if (workerRef.current) workerRef.current.terminate();
                     }}
                   >
-                    Remove
+                    Remover
                   </button>
                 </div>
               )}
@@ -437,7 +456,7 @@ export default function App() {
               {progress !== null && progressBytes && (
                 <div className="progress-container">
                   <div className="progress-header">
-                    <span>Hashing progress: {progress}%</span>
+                    <span>Progresso do Hashing: {progress}%</span>
                     <span>
                       {formatBytes(progressBytes.read)} / {formatBytes(progressBytes.total)}
                     </span>
@@ -453,11 +472,11 @@ export default function App() {
           {error && (
             <div className="error-msg">
               <span>⚠️</span>
-              <span>Error: {error}</span>
+              <span>Erro: {error}</span>
             </div>
           )}
 
-          {/* Results section rendered as a High Fidelity CLI panel */}
+          {/* Core hashes panel highlighting preserved structures */}
           <section className="cli-panel">
             <div className="cli-header">
               <div className="cli-dots">
@@ -465,64 +484,79 @@ export default function App() {
                 <span className="dot yellow"></span>
                 <span className="dot green"></span>
               </div>
-              <span className="cli-title">Hash Cryptographic Output</span>
+              <span className="cli-title">Hashes Principais (Estáveis)</span>
               <div style={{ justifySelf: 'end' }}>
                 {isComputing && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--muted)' }}>
                     <span className="computing-spinner" />
-                    <span style={{ fontSize: '0.75rem', fontFamily: 'var(--mono)', textTransform: 'uppercase' }}>Computing...</span>
+                    <span style={{ fontSize: '0.75rem', fontFamily: 'var(--mono)', textTransform: 'uppercase' }}>Computando...</span>
                   </div>
                 )}
               </div>
             </div>
 
             <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {/* Optional Hash Comparison section */}
               <div className="compare-box">
                 <span style={{ fontFamily: 'var(--mono)', fontSize: '0.8rem', color: 'var(--accent-light)', textTransform: 'uppercase', fontWeight: 700 }}>
-                  🔍 Compare / Match hash
+                  🔍 Comparar / Verificar Match do Hash
                 </span>
                 <input
                   type="text"
-                  placeholder="Paste external hash here to verify matches..."
+                  placeholder="Cole um hash externo para verificar se há correspondência automática..."
                   value={compareHash}
                   onChange={(e) => setCompareHash(e.target.value.trim().toLowerCase())}
                 />
               </div>
 
               <div className="results-grid">
-                {['SHA-256', 'SHA-512', 'MD5', 'BLAKE3'].map((algo) => {
-                  const key = algo.toLowerCase().replace('-', '') as 'sha256' | 'sha512' | 'md5' | 'blake3';
-                  const value = hashes ? hashes[key] : '';
-                  const hasMatchValue = compareHash.length > 0 && value.length > 0;
-                  const isMatch = value.toLowerCase() === compareHash;
+                {[
+                  { label: 'SHA-256', key: 'sha256' },
+                  { label: 'SHA-512', key: 'sha512' },
+                  { label: 'MD5', key: 'md5' },
+                  { label: 'BLAKE3', key: 'blake3' }
+                ].map(({ label, key }) => {
+                  const val = hashes ? hashes[key] : '';
+                  const hasMatchValue = compareHash.length > 0 && val.length > 0;
+                  const isMatch = val.toLowerCase() === compareHash;
 
                   return (
-                    <div className="result-card" key={algo}>
+                    <div className="result-card" key={label}>
                       <div className="result-card-header">
-                        <h3>{algo}</h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <h3>{label}</h3>
+                          <button
+                            className="info-icon-btn"
+                            title="Ver detalhes do algoritmo"
+                            onClick={() => {
+                              const match = hashAlgorithms.find(a => a.name === label);
+                              if (match) setActiveInfoAlgo(match);
+                            }}
+                          >
+                            ℹ️
+                          </button>
+                        </div>
                         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                           {hasMatchValue && (
                             <span className={`compare-status ${isMatch ? 'match' : 'mismatch'}`}>
-                              {isMatch ? '✓ Match' : '✗ Mismatch'}
+                              {isMatch ? '✓ Correspondente' : '✗ Diferente'}
                             </span>
                           )}
-                          {value && (
+                          {val && (
                             <button
-                              className={`copy-btn ${copiedAlgo === algo ? 'copied' : ''}`}
-                              onClick={() => copyToClipboard(algo, value)}
+                              className={`copy-btn ${copiedAlgo === label ? 'copied' : ''}`}
+                              onClick={() => copyToClipboard(label, val)}
                             >
-                              {copiedAlgo === algo ? '✓ Copied' : '📋 Copy'}
+                              {copiedAlgo === label ? '✓ Copiado' : '📋 Copiar'}
                             </button>
                           )}
                         </div>
                       </div>
                       <div className={`hash-container ${key}`}>
-                        {value ? (
-                          <span className="hash">{value}</span>
+                        {val ? (
+                          <span className="hash">{val}</span>
                         ) : (
                           <span className="hash-placeholder">
-                            {isComputing ? 'Computing...' : 'No input generated yet'}
+                            {isComputing ? 'Processando...' : 'Nenhuma entrada ainda gerada'}
                           </span>
                         )}
                       </div>
@@ -532,9 +566,301 @@ export default function App() {
               </div>
             </div>
           </section>
+
+          {/* New Expanded Algorithms Explorer Interface */}
+          <section className="premium-card algos-explorer">
+            <div className="explorer-header" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '16px', marginBottom: '20px' }}>
+              <h2 style={{ border: 'none', margin: 0, padding: 0 }}>⚙️ Explorer de Algoritmos Completo</h2>
+              <p style={{ margin: '8px 0 0 0' }}>
+                Pesquise e compare mais de 100 algoritmos de hashing criptográficos, somas de verificação, hashes rápidos e fuzzy.
+              </p>
+            </div>
+
+            {/* Search and Category Filters Row */}
+            <div className="explorer-controls" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+              <div className="search-wrapper" style={{ position: 'relative', width: '100%' }}>
+                <input
+                  type="text"
+                  placeholder="Pesquise por nome de algoritmo ou palavras-chave nas descrições..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    width: '100%',
+                    background: 'rgba(3,3,5,0.7)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    padding: '12px 16px',
+                    color: 'var(--text)',
+                    fontFamily: 'var(--mono)',
+                    fontSize: '0.9rem',
+                    outline: 'none',
+                    transition: 'border-color 0.3s ease'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = 'var(--accent-light)'}
+                  onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+                />
+              </div>
+
+              <div className="category-filters-container" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`filter-badge ${selectedCategory === cat ? 'active' : ''}`}
+                    style={{
+                      background: selectedCategory === cat ? 'linear-gradient(135deg, var(--accent), var(--accent-light))' : 'rgba(255,255,255,0.03)',
+                      color: selectedCategory === cat ? '#050508' : 'var(--muted)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '20px',
+                      padding: '6px 14px',
+                      fontSize: '0.8rem',
+                      cursor: 'pointer',
+                      fontFamily: 'var(--mono)',
+                      fontWeight: selectedCategory === cat ? 700 : 500,
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Algorithms Grid */}
+            <div className="explorer-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+              {filteredAlgorithms.map(algo => {
+                const badge = getSecurityBadgeInfo(algo.securityLevel);
+                const resultsKey = algo.key || algo.name.toLowerCase().replace(/-|\//g, '_');
+                const val = hashes ? hashes[resultsKey] : '';
+                const hasMatchValue = compareHash.length > 0 && val && val.length > 0;
+                const isMatch = val && val.toLowerCase() === compareHash;
+
+                return (
+                  <div
+                    className={`explorer-card ${algo.implemented ? 'implemented' : 'not-implemented'}`}
+                    key={algo.name}
+                    style={{
+                      background: 'rgba(3,3,5,0.4)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '8px',
+                      padding: '16px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                      position: 'relative'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <h4 style={{ margin: 0, fontSize: '1.05rem', color: '#fff' }}>{algo.name}</h4>
+                        <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: '4px', color: 'var(--muted)' }}>
+                          {algo.category}
+                        </span>
+                        <span className={`badge-sec ${badge.className}`}>
+                          {badge.text}
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        {algo.implemented ? (
+                          <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700 }}>● IMPLEMENTADO</span>
+                        ) : (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontStyle: 'italic' }}>○ Não implementado (Info)</span>
+                        )}
+                        <button
+                          className="info-icon-btn"
+                          style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1.1rem' }}
+                          onClick={() => setActiveInfoAlgo(algo)}
+                          title="Detalhes e Recomendações"
+                        >
+                          ℹ️
+                        </button>
+                      </div>
+                    </div>
+
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)' }}>
+                      {algo.description}
+                    </p>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '6px' }}>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--accent-light)', fontWeight: 700 }}>Recomendação:</span>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>{algo.recommendation}</span>
+                    </div>
+
+                    {/* Rendering the actual hash if implemented */}
+                    {algo.implemented && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--muted-dark)', fontFamily: 'var(--mono)' }}>HASH OUTPUT:</span>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            {hasMatchValue && (
+                              <span className={`compare-status ${isMatch ? 'match' : 'mismatch'}`} style={{ fontSize: '0.75rem' }}>
+                                {isMatch ? '✓ Match' : '✗ Mismatch'}
+                              </span>
+                            )}
+                            {val && (
+                              <button
+                                className={`copy-btn ${copiedAlgo === algo.name ? 'copied' : ''}`}
+                                onClick={() => copyToClipboard(algo.name, val)}
+                                style={{ padding: '2px 8px', fontSize: '10px' }}
+                              >
+                                {copiedAlgo === algo.name ? '✓ Copiado' : '📋 Copiar'}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        <div
+                          className="mini-hash-container"
+                          style={{
+                            background: 'rgba(3,3,5,0.7)',
+                            padding: '8px 12px',
+                            borderRadius: '4px',
+                            fontFamily: 'var(--mono)',
+                            fontSize: '0.8rem',
+                            wordBreak: 'break-all',
+                            color: val ? 'var(--text)' : 'var(--muted-dark)',
+                            border: '1px solid rgba(255,255,255,0.02)'
+                          }}
+                        >
+                          {val ? val : (isComputing ? 'Processando...' : 'Nenhuma entrada gerada')}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              {filteredAlgorithms.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)' }}>
+                  Nenhum algoritmo encontrado para "{searchQuery}" nesta categoria.
+                </div>
+              )}
+            </div>
+          </section>
         </main>
 
+        {/* Algorithm Detail Dialog/Modal popup */}
+        {activeInfoAlgo && (
+          <div
+            className="modal-backdrop"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(2, 2, 4, 0.85)',
+              zIndex: 10000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px'
+            }}
+            onClick={() => setActiveInfoAlgo(null)}
+          >
+            <div
+              className="modal-content"
+              style={{
+                background: 'var(--bg-panel-solid)',
+                border: '1px solid var(--accent-light)',
+                borderRadius: '12px',
+                padding: '24px',
+                maxWidth: '600px',
+                width: '100%',
+                boxShadow: 'var(--shadow), var(--glow-shadow)',
+                position: 'relative',
+                fontFamily: 'var(--mono)'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                style={{
+                  position: 'absolute',
+                  top: '16px',
+                  right: '16px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--muted)',
+                  fontSize: '1.2rem',
+                  cursor: 'pointer'
+                }}
+                onClick={() => setActiveInfoAlgo(null)}
+              >
+                ✕
+              </button>
+
+              <h3 style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px', marginBottom: '16px', color: '#fff' }}>
+                {activeInfoAlgo.name}
+              </h3>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.9rem', lineHeight: 1.6 }}>
+                <div>
+                  <strong style={{ color: 'var(--accent-light)' }}>Categoria:</strong> {activeInfoAlgo.category}
+                </div>
+
+                <div>
+                  <strong style={{ color: 'var(--accent-light)' }}>Nível de Segurança:</strong>{' '}
+                  <span className={`badge-sec ${getSecurityBadgeInfo(activeInfoAlgo.securityLevel).className}`}>
+                    {getSecurityBadgeInfo(activeInfoAlgo.securityLevel).text}
+                  </span>
+                </div>
+
+                <div>
+                  <strong style={{ color: 'var(--accent-light)' }}>Sobre o Algoritmo:</strong>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '0.9rem', color: 'var(--text)' }}>
+                    {activeInfoAlgo.description}
+                  </p>
+                </div>
+
+                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '6px', borderLeft: '3px solid var(--accent)' }}>
+                  <strong style={{ color: 'var(--accent-light)', display: 'block', marginBottom: '4px' }}>Recomendação de Uso:</strong>
+                  <span style={{ color: 'var(--text)' }}>{activeInfoAlgo.recommendation}</span>
+                </div>
+
+                {activeInfoAlgo.citations.length > 0 && (
+                  <div>
+                    <strong style={{ color: 'var(--accent-light)' }}>Fontes & Citations:</strong>
+                    <ul style={{ margin: '6px 0 0 0', paddingLeft: '20px', color: 'var(--muted)', fontSize: '0.85rem' }}>
+                      {activeInfoAlgo.citations.map((cite, i) => (
+                        <li key={i}>{cite}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div>
+                  <strong style={{ color: 'var(--accent-light)' }}>Status no RustHash:</strong>{' '}
+                  {activeInfoAlgo.implemented ? (
+                    <span style={{ color: '#10b981', fontWeight: 700 }}>Implementado e calculado em tempo real</span>
+                  ) : (
+                    <span style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Não implementado (Fins informativos/raro)</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Informational Security Footer as requested */}
         <footer className="site-footer">
+          <div className="security-summary-footer" style={{
+            maxWidth: '800px',
+            margin: '0 auto 24px auto',
+            background: 'rgba(13,14,20,0.6)',
+            border: '1px solid var(--border)',
+            borderRadius: '8px',
+            padding: '16px',
+            textAlign: 'left'
+          }}>
+            <p style={{ margin: '0 0 8px 0', fontWeight: 700, color: 'var(--accent-light)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>⚠️</span> Diretrizes de Segurança de Algoritmos de Hash:
+            </p>
+            <p style={{ margin: '0 0 6px 0', fontSize: '0.82rem', color: '#fca5a5' }}>
+              <strong>Algoritmos inseguros (Evitar em novos sistemas):</strong> MD2, MD4, MD5, SHA-1, LM Hash e NTLM possuem vulnerabilidades críticas comprovadas (como colisões ativas e inversão rápida) e não oferecem garantia criptográfica. Checksums como Adler-32 e CRC-32 não são criptográficos e servem apenas para detectar corrupção de transmissão de rede ou disco física.
+            </p>
+            <p style={{ margin: 0, fontSize: '0.82rem', color: '#a7f3d0' }}>
+              <strong>Algoritmos recomendados para novos projetos:</strong> SHA-256, SHA-512, SHA-3, BLAKE3 (hashing geral rápido e robusto), e Argon2id, bcrypt ou scrypt para armazenamento e segurança de senhas.
+            </p>
+          </div>
+
           <p>© {new Date().getFullYear()} RustHash | Local Hashing Sandbox. Powered by Vite + React + Rust WebAssembly.</p>
         </footer>
       </div>

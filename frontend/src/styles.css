@@ -311,7 +311,7 @@ header.site-header p {
   font-size: 0.95rem;
   border-radius: 8px;
   cursor: pointer;
-  font-family: var(--mono);
+  font-family: var(--sans);
   text-transform: uppercase;
   letter-spacing: 1px;
   transition: all 0.2s ease;
@@ -813,6 +813,102 @@ textarea:focus {
   font-size: 0.78rem;
   color: var(--muted-dark);
   margin: 0;
+}
+
+/* Security Badges & Icons */
+.info-icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.info-icon-btn:hover {
+  transform: scale(1.2);
+}
+
+.badge-sec {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.badge-secure {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-weak {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-obsolete {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.badge-checksum {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.badge-na {
+  background: rgba(156, 163, 175, 0.15);
+  color: #d1d5db;
+  border: 1px solid rgba(156, 163, 175, 0.3);
+}
+
+/* Explorer styles */
+.algos-explorer {
+  margin-top: 10px;
+}
+
+.explorer-card {
+  transition: all 0.3s var(--transition);
+}
+
+.explorer-card:hover {
+  border-color: var(--border-glow) !important;
+  transform: translateY(-1px);
+  background: rgba(13, 14, 20, 0.8) !important;
+}
+
+.explorer-card.not-implemented {
+  opacity: 0.8;
+}
+
+/* Modals */
+.modal-backdrop {
+  backdrop-filter: blur(8px);
+}
+
+.modal-content {
+  animation: modal-enter 0.4s var(--transition);
+}
+
+@keyframes modal-enter {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* Responsive breakdowns */
