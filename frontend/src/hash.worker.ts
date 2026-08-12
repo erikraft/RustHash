@@ -30,7 +30,27 @@ import init, {
   SipHashHasher,
   LuhnHasher,
   VerhoeffHasher,
-  DammHasher
+  DammHasher,
+  // New implemented hashers
+  AsconHash256Hasher,
+  AsconXof128Hasher,
+  Fletcher16Hasher,
+  Fletcher32Hasher,
+  Crc8Hasher,
+  Crc16Hasher,
+  Crc64Hasher,
+  Cshake128Hasher,
+  Cshake256Hasher,
+  Kmac128Hasher,
+  Kmac256Hasher,
+  TupleHash128Hasher,
+  TupleHash256Hasher,
+  // New specialized parameter functions
+  hash_argon2,
+  hash_bcrypt,
+  hash_scrypt,
+  hash_pbkdf2,
+  encode_geohash
 } from './pkg/hash_wasm';
 
 let wasmInitialized = false;
@@ -81,45 +101,155 @@ const hashersConfig = {
   siphash: SipHashHasher,
   luhn: LuhnHasher,
   verhoeff: VerhoeffHasher,
-  damm: DammHasher
+  damm: DammHasher,
+  // New standard hashers
+  ascon_hash256: AsconHash256Hasher,
+  ascon_xof128: AsconXof128Hasher,
+  fletcher16: Fletcher16Hasher,
+  fletcher32: Fletcher32Hasher,
+  crc8: Crc8Hasher,
+  crc16: Crc16Hasher,
+  crc64: Crc64Hasher
 };
 
 type AlgoKey = keyof typeof hashersConfig;
 
 // Handler for messages from main thread
 self.onmessage = async (event: MessageEvent) => {
-  const { type, data, id } = event.data;
+  const { type, data, id, params = {} } = event.data;
 
   try {
     await ensureWasm();
 
     const algoKeys = Object.keys(hashersConfig) as AlgoKey[];
+    const encoder = new TextEncoder();
+
+    // Default configuration values
+    const cshakeCustom = encoder.encode(params.cshake_customization || '');
+    const kmacKey = encoder.encode(params.kmac_key || 'key');
+    const kmacCustom = encoder.encode(params.kmac_customization || '');
+    const tuplehashCustom = encoder.encode(params.tuplehash_customization || '');
+
+    // KDF / Parameterized fields
+    const argon2Salt = encoder.encode(params.argon2_salt || 'salt12345');
+    const argon2m = Number(params.argon2_m_cost || 4096);
+    const argon2t = Number(params.argon2_t_cost || 3);
+    const argon2p = Number(params.argon2_p_cost || 1);
+    const argon2len = Number(params.argon2_out_len || 32);
+
+    const bcryptCost = Number(params.bcrypt_cost || 4);
+
+    const scryptSalt = encoder.encode(params.scrypt_salt || 'scrypt_salt');
+    const scryptN = Number(params.scrypt_log_n || 10);
+    const scryptR = Number(params.scrypt_r || 8);
+    const scryptP = Number(params.scrypt_p || 1);
+    const scryptLen = Number(params.scrypt_out_len || 32);
+
+    const pbkdf2Salt = encoder.encode(params.pbkdf2_salt || 'salt');
+    const pbkdf2Iter = Number(params.pbkdf2_iterations || 1000);
+    const pbkdf2Len = Number(params.pbkdf2_out_len || 32);
+    const pbkdf2Prf = params.pbkdf2_prf || 'sha256';
+
+    const geoLat = Number(params.geohash_latitude || 37.8324);
+    const geoLon = Number(params.geohash_longitude || 112.5584);
+    const geoPrecision = Number(params.geohash_precision || 9);
 
     if (type === 'HASH_TEXT') {
-      const encoder = new TextEncoder();
       const bytes = encoder.encode(data || '');
 
-      // Instantiate all hashers
+      // 1. Instantiate and process all standard/incremental hashers
       const instances = {} as Record<AlgoKey, any>;
       for (const k of algoKeys) {
         instances[k] = new hashersConfig[k]();
       }
-
-      // Update all hashers
       for (const k of algoKeys) {
         instances[k].update(bytes);
       }
 
-      // Finalize all hashes
+      // Collect results for standard hashers
       const results = {} as Record<string, string>;
       for (const k of algoKeys) {
         const outBytes = instances[k].finalize();
-        // Since Luhn/Verhoeff/Damm return simple decimals, keep single digit or small array representation
         if (k === 'luhn' || k === 'verhoeff' || k === 'damm') {
           results[k] = String(outBytes[0]);
         } else {
           results[k] = toHex(new Uint8Array(outBytes));
         }
+      }
+
+      // 2. Instantiate and process SP 800-185 hashers dynamically with custom params
+      const c128 = new Cshake128Hasher(cshakeCustom);
+      c128.update(bytes);
+      results['cshake128'] = toHex(new Uint8Array(c128.finalize()));
+
+      const c256 = new Cshake256Hasher(cshakeCustom);
+      c256.update(bytes);
+      results['cshake256'] = toHex(new Uint8Array(c256.finalize()));
+
+      const k128 = new Kmac128Hasher(kmacKey, kmacCustom);
+      k128.update(bytes);
+      results['kmac128'] = toHex(new Uint8Array(k128.finalize()));
+
+      const k256 = new Kmac256Hasher(kmacKey, kmacCustom);
+      k256.update(bytes);
+      results['kmac256'] = toHex(new Uint8Array(k256.finalize()));
+
+      // For TupleHash, we can parse multiple comma separated values if supplied, or standard string bytes
+      const t128 = new TupleHash128Hasher(tuplehashCustom);
+      if (typeof data === 'string' && data.includes(',')) {
+        const items = data.split(',').map(s => encoder.encode(s.trim()));
+        for (const item of items) {
+          t128.update(item);
+        }
+      } else {
+        t128.update(bytes);
+      }
+      results['tuplehash128'] = toHex(new Uint8Array(t128.finalize()));
+
+      const t256 = new TupleHash256Hasher(tuplehashCustom);
+      if (typeof data === 'string' && data.includes(',')) {
+        const items = data.split(',').map(s => encoder.encode(s.trim()));
+        for (const item of items) {
+          t256.update(item);
+        }
+      } else {
+        t256.update(bytes);
+      }
+      results['tuplehash256'] = toHex(new Uint8Array(t256.finalize()));
+
+      // 3. Compute parameterized specialized functions
+      try {
+        results['argon2id'] = hash_argon2(bytes, argon2Salt, argon2m, argon2t, argon2p, argon2len, 'argon2id');
+        results['argon2i'] = hash_argon2(bytes, argon2Salt, argon2m, argon2t, argon2p, argon2len, 'argon2i');
+        results['argon2d'] = hash_argon2(bytes, argon2Salt, argon2m, argon2t, argon2p, argon2len, 'argon2d');
+      } catch (err) {
+        results['argon2id'] = 'N/A (Error)';
+        results['argon2i'] = 'N/A (Error)';
+        results['argon2d'] = 'N/A (Error)';
+      }
+
+      try {
+        results['bcrypt'] = hash_bcrypt(bytes, bcryptCost);
+      } catch (err) {
+        results['bcrypt'] = 'N/A (Error)';
+      }
+
+      try {
+        results['scrypt'] = hash_scrypt(bytes, scryptSalt, scryptN, scryptR, scryptP, scryptLen);
+      } catch (err) {
+        results['scrypt'] = 'N/A (Error)';
+      }
+
+      try {
+        results['pbkdf2'] = hash_pbkdf2(bytes, pbkdf2Salt, pbkdf2Iter, pbkdf2Len, pbkdf2Prf);
+      } catch (err) {
+        results['pbkdf2'] = 'N/A (Error)';
+      }
+
+      try {
+        results['geohash'] = encode_geohash(geoLat, geoLon, geoPrecision);
+      } catch (err) {
+        results['geohash'] = 'N/A (Error)';
       }
 
       self.postMessage({
@@ -131,11 +261,19 @@ self.onmessage = async (event: MessageEvent) => {
       const file: File | Blob = data;
       const totalSize = file.size;
 
-      // Instantiate all hashers
+      // 1. Instantiate standard/incremental hashers
       const instances = {} as Record<AlgoKey, any>;
       for (const k of algoKeys) {
         instances[k] = new hashersConfig[k]();
       }
+
+      // 2. Instantiate SP 800-185 hashers dynamically
+      const c128 = new Cshake128Hasher(cshakeCustom);
+      const c256 = new Cshake256Hasher(cshakeCustom);
+      const k128 = new Kmac128Hasher(kmacKey, kmacCustom);
+      const k256 = new Kmac256Hasher(kmacKey, kmacCustom);
+      const t128 = new TupleHash128Hasher(tuplehashCustom);
+      const t256 = new TupleHash256Hasher(tuplehashCustom);
 
       const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB chunks
       let offset = 0;
@@ -145,10 +283,18 @@ self.onmessage = async (event: MessageEvent) => {
         const arrayBuffer = await slice.arrayBuffer();
         const chunkBytes = new Uint8Array(arrayBuffer);
 
-        // Update all hashers
+        // Update standard hashers
         for (const k of algoKeys) {
           instances[k].update(chunkBytes);
         }
+
+        // Update custom SP 800-185 hashers
+        c128.update(chunkBytes);
+        c256.update(chunkBytes);
+        k128.update(chunkBytes);
+        k256.update(chunkBytes);
+        t128.update(chunkBytes);
+        t256.update(chunkBytes);
 
         offset += chunkBytes.length;
 
@@ -163,7 +309,7 @@ self.onmessage = async (event: MessageEvent) => {
         });
       }
 
-      // Finalize all hashes
+      // Collect results for standard hashers
       const results = {} as Record<string, string>;
       for (const k of algoKeys) {
         const outBytes = instances[k].finalize();
@@ -173,6 +319,23 @@ self.onmessage = async (event: MessageEvent) => {
           results[k] = toHex(new Uint8Array(outBytes));
         }
       }
+
+      // Collect results for SP 800-185 hashers
+      results['cshake128'] = toHex(new Uint8Array(c128.finalize()));
+      results['cshake256'] = toHex(new Uint8Array(c256.finalize()));
+      results['kmac128'] = toHex(new Uint8Array(k128.finalize()));
+      results['kmac256'] = toHex(new Uint8Array(k256.finalize()));
+      results['tuplehash128'] = toHex(new Uint8Array(t128.finalize()));
+      results['tuplehash256'] = toHex(new Uint8Array(t256.finalize()));
+
+      // 3. Mark non-applicable KDF/spatial algorithms on file input
+      results['argon2id'] = 'Não aplicável (KDF de Senha)';
+      results['argon2i'] = 'Não aplicável (KDF de Senha)';
+      results['argon2d'] = 'Não aplicável (KDF de Senha)';
+      results['bcrypt'] = 'Não aplicável (KDF de Senha)';
+      results['scrypt'] = 'Não aplicável (KDF de Senha)';
+      results['pbkdf2'] = 'Não aplicável (KDF de Senha)';
+      results['geohash'] = 'Não aplicável (Geoespectral)';
 
       self.postMessage({
         type: 'HASH_SUCCESS',
