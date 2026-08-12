@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "postinstall": "npm install --prefix frontend --legacy-peer-deps",
-    "build:wasm": "wasm-pack build rust --out-dir ../frontend/src/pkg --target web",
+    "build:wasm": "npx wasm-pack build rust --out-dir ../frontend/src/pkg --target web",
     "build:frontend": "npm run --prefix frontend build",
     "build": "npm run build:wasm && npm run build:frontend",
     "dev": "npm run build:wasm && npm run --prefix frontend dev"
