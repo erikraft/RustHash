@@ -342,6 +342,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "gost94"
+version = "0.10.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2f960e0ba8eb5e47a7d45097dc4159b5ef63d82e62dc85894bfcfd8e6b85526c"
+dependencies = [
+ "digest",
+]
+
+[[package]]
 name = "hash_wasm"
 version = "0.1.0"
 dependencies = [
@@ -356,6 +365,7 @@ dependencies = [
  "fletcher",
  "geohash",
  "getrandom",
+ "gost94",
  "hex",
  "md-5",
  "md2",
@@ -369,6 +379,8 @@ dependencies = [
  "siphasher",
  "sm3",
  "sp800-185",
+ "streebog",
+ "tiger",
  "wasm-bindgen",
  "wasm-bindgen-test",
  "whirlpool",
@@ -724,6 +736,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "streebog"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e7fe6ed8a42cec360e070309427bb7959e102849b0dbaa7de19d5b9860bd536"
+dependencies = [
+ "digest",
+]
+
+[[package]]
 name = "subtle"
 version = "2.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -769,6 +790,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 3.0.3",
+]
+
+[[package]]
+name = "tiger"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "579abbce4ad73b04386dbeb34369c9873a8f9b749c7b99cbf479a2949ff715ed"
+dependencies = [
+ "digest",
 ]
 
 [[package]]

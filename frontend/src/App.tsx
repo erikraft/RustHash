@@ -127,11 +127,15 @@ export default function App() {
   const [geoPrecision, setGeoPrecision] = useState(9);
 
   const [showParams, setShowParams] = useState(false);
+  const [showDevPanel, setShowDevPanel] = useState(false);
 
   const workerRef = useRef<Worker | null>(null);
 
   // Favicon animation effect alternating every 1000ms
   useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('dev') === 'true') {
+      setShowDevPanel(true);
+    }
     let isPng = true;
     const interval = setInterval(() => {
       const link = document.getElementById('favicon') as HTMLLinkElement | null;
@@ -461,6 +465,105 @@ export default function App() {
       default:
         return { text: 'N/A', className: 'badge-na' };
     }
+  };
+
+  // Fallback helpers for 13 technical fields
+  const getFallbackYear = (name: string): string => {
+    const n = name.toUpperCase();
+    if (n.includes('SHA-256') || n.includes('SHA-512') || n.includes('SHA-384')) return '2001';
+    if (n.includes('SHA-224')) return '2004';
+    if (n.includes('SHA-512/')) return '2012';
+    if (n.includes('SHA3-') || n.includes('SHAKE')) return '2015';
+    if (n.includes('CSHAKE') || n.includes('KMAC') || n.includes('TUPLEHASH')) return '2016';
+    if (n.includes('ASCON')) return '2023';
+    if (n.includes('BLAKE3')) return '2020';
+    if (n.includes('BLAKE2')) return '2012';
+    if (n.includes('RIPEMD-160')) return '1996';
+    if (n.includes('MD5')) return '1992';
+    if (n.includes('MD4')) return '1990';
+    if (n.includes('MD2')) return '1989';
+    if (n.includes('WHIRLPOOL')) return '2000';
+    if (n.includes('SM3')) return '2010';
+    if (n.includes('SHA-1')) return '1995';
+    if (n.includes('CRC-32')) return '1975';
+    if (n.includes('ADLER-32')) return '1995';
+    if (n.includes('CRC-8')) return '1992';
+    if (n.includes('CRC-16')) return '1962';
+    if (n.includes('CRC-64')) return '1993';
+    if (n.includes('FLETCHER')) return '1982';
+    if (n.includes('LUHN')) return '1954';
+    if (n.includes('VERHOEFF')) return '1969';
+    if (n.includes('DAMM')) return '2004';
+    if (n.includes('MURMURHASH3')) return '2011';
+    if (n.includes('XXHASH')) return '2012';
+    if (n.includes('SIPHASH')) return '2012';
+    if (n.includes('FNV')) return '1991';
+    if (n.includes('ARGON2')) return '2015';
+    if (n.includes('BCRYPT')) return '1999';
+    if (n.includes('SCRYPT')) return '2009';
+    if (n.includes('PBKDF2')) return '2000';
+    if (n.includes('GEOHASH')) return '2008';
+    return 'N/A';
+  };
+
+  const getFallbackOutputSize = (name: string): string => {
+    const n = name.toUpperCase();
+    if (n.includes('SHA-256') || n.includes('SHA3-256') || n.includes('BLAKE2S') || n.includes('ASCON-HASH256') || n.includes('SM3')) return '256 bits (32 bytes)';
+    if (n.includes('SHA-512') || n.includes('SHA3-512') || n.includes('BLAKE2B') || n.includes('WHIRLPOOL')) return '512 bits (64 bytes)';
+    if (n.includes('SHA-384') || n.includes('SHA3-384')) return '384 bits (48 bytes)';
+    if (n.includes('SHA-224') || n.includes('SHA3-224')) return '224 bits (28 bytes)';
+    if (n.includes('SHA-512/224')) return '224 bits (28 bytes)';
+    if (n.includes('SHA-512/256')) return '256 bits (32 bytes)';
+    if (n.includes('MD5') || n.includes('MD4') || n.includes('MD2') || n.includes('RIPEMD-128')) return '128 bits (16 bytes)';
+    if (n.includes('SHA-1') || n.includes('RIPEMD-160')) return '160 bits (20 bytes)';
+    if (n.includes('SHAKE') || n.includes('CSHAKE') || n.includes('KMAC') || n.includes('TUPLEHASH') || n.includes('ASCON-XOF') || n.includes('ARGON2') || n.includes('SCRYPT') || n.includes('PBKDF2')) return 'Flexível (Tamanho customizável)';
+    if (n.includes('CRC-32') || n.includes('ADLER-32') || n.includes('FLETCHER-32')) return '32 bits (4 bytes)';
+    if (n.includes('CRC-16') || n.includes('FLETCHER-16')) return '16 bits (2 bytes)';
+    if (n.includes('CRC-8') || n.includes('LUHN') || n.includes('VERHOEFF') || n.includes('DAMM')) return '8 bits (1 byte)';
+    if (n.includes('CRC-64')) return '64 bits (8 bytes)';
+    if (n.includes('MURMURHASH3') || n.includes('FNV')) return '32 bits (4 bytes)';
+    if (n.includes('XXHASH')) return '32 bits (4 bytes)';
+    if (n.includes('SIPHASH')) return '64 bits (8 bytes)';
+    if (n.includes('BCRYPT')) return '184 bits (Cifra Blowfish)';
+    if (n.includes('GEOHASH')) return 'Variável (String de precisão espacial)';
+    return 'N/A';
+  };
+
+  const getFallbackType = (category: string, name: string): string => {
+    if (category === 'Integridade (Checksum)') return 'Algoritmo de Soma de Verificação (Checksum)';
+    if (category === 'Fast/Non-Cryptographic') return 'Função Hash Não Criptográfica Rápida';
+    if (category === 'Segurança de Senha') return 'Função de Derivação de Chaves (KDF) / Senhas';
+    if (category === 'Fuzzy/Similaridade') return 'Fuzzy Hash / Algoritmo de Similaridade';
+    if (name.toUpperCase().includes('KMAC')) return 'Código de Autenticação de Mensagem (MAC)';
+    return 'Função Hash Criptográfica';
+  };
+
+  const getFallbackAuthor = (name: string): string => {
+    const n = name.toUpperCase();
+    if (n.includes('SHA-256') || n.includes('SHA-512') || n.includes('SHA-384') || n.includes('SHA-224') || n.includes('SHA-1')) return 'NSA / NIST';
+    if (n.includes('SHA3-') || n.includes('SHAKE') || n.includes('KMAC') || n.includes('TUPLEHASH')) return 'Guido Bertoni, Joan Daemen, Michaël Peeters, Gilles Van Assche (Equipe Keccak)';
+    if (n.includes('ASCON')) return 'Christoph Dobraunig, Maria Eichlseder, Florian Mendel, Martin Schläffer';
+    if (n.includes('BLAKE3')) return 'Jack O\'Connor, Jean-Philippe Aumasson, Samuel Neves, Zooko Wilcox-O\'Hearn';
+    if (n.includes('BLAKE2')) return 'Jean-Philippe Aumasson, Samuel Neves, Zooko Wilcox-O\'Hearn, Christian Winnerlein';
+    if (n.includes('RIPEMD-160')) return 'Hans Dobbertin, Antoon Bosselaers, Bart Preneel';
+    if (n.includes('MD5') || n.includes('MD4') || n.includes('MD2') || n.includes('MD6')) return 'Ronald Rivest (MIT)';
+    if (n.includes('WHIRLPOOL')) return 'Vincent Rijmen, Paulo Barreto';
+    if (n.includes('SM3')) return 'Governo Chinês / TC 260';
+    if (n.includes('CRC-') || n.includes('ADLER')) return 'W. Wesley Peterson / Comunidade IETF';
+    if (n.includes('FLETCHER')) return 'John G. Fletcher';
+    if (n.includes('LUHN')) return 'Hans Peter Luhn';
+    if (n.includes('VERHOEFF')) return 'Jacobus Verhoeff';
+    if (n.includes('DAMM')) return 'H. Michael Damm';
+    if (n.includes('MURMURHASH')) return 'Austin Appleby';
+    if (n.includes('XXHASH')) return 'Yann Collet';
+    if (n.includes('SIPHASH')) return 'Jean-Philippe Aumasson, Daniel J. Bernstein';
+    if (n.includes('FNV')) return 'Glenn Fowler, Landon Curt Noll, Phong Vo';
+    if (n.includes('ARGON2')) return 'Alex Biryukov, Daniel Dinu, Dmitry Khovratovich';
+    if (n.includes('BCRYPT')) return 'Niels Provos, David Mazières';
+    if (n.includes('SCRYPT')) return 'Colin Percival';
+    if (n.includes('PBKDF2')) return 'RSA Laboratories (PKCS #5)';
+    if (n.includes('GEOHASH')) return 'Gustavo Niemeyer';
+    return 'Pesquisadores / Comunidade Criptográfica';
   };
 
   // Filter categories
@@ -965,7 +1068,7 @@ export default function App() {
                   <i className="fa-solid fa-compass" aria-hidden="true"></i>Explorer de Algoritmos Completo
                 </h2>
                 <p style={{ margin: '8px 0 0 0' }}>
-                  Pesquise e compare mais de 100 algoritmos de hashing criptográficos, somas de verificação, hashes rápidos e fuzzy.
+                  Pesquise e compare os {hashAlgorithms.length} algoritmos de hashing criptográficos, somas de verificação, hashes rápidos e fuzzy.
                 </p>
               </div>
 
@@ -1209,53 +1312,205 @@ export default function App() {
                 {activeInfoAlgo.name}
               </h3>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.9rem', lineHeight: 1.6 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem', lineHeight: 1.5, maxHeight: '70vh', overflowY: 'auto', paddingRight: '6px' }}>
+                <div>
+                  <strong style={{ color: 'var(--accent-light)' }}>Nome:</strong> {activeInfoAlgo.name}
+                </div>
+
+                <div>
+                  <strong style={{ color: 'var(--accent-light)' }}>Ano de Lançamento:</strong> {activeInfoAlgo.year || getFallbackYear(activeInfoAlgo.name)}
+                </div>
+
+                <div>
+                  <strong style={{ color: 'var(--accent-light)' }}>Autor(es):</strong> {activeInfoAlgo.author || getFallbackAuthor(activeInfoAlgo.name)}
+                </div>
+
                 <div>
                   <strong style={{ color: 'var(--accent-light)' }}>Categoria:</strong> {activeInfoAlgo.category}
                 </div>
 
                 <div>
-                  <strong style={{ color: 'var(--accent-light)' }}>Nível de Segurança:</strong>{' '}
+                  <strong style={{ color: 'var(--accent-light)' }}>Tamanho da Saída:</strong> {activeInfoAlgo.outputSize || getFallbackOutputSize(activeInfoAlgo.name)}
+                </div>
+
+                <div>
+                  <strong style={{ color: 'var(--accent-light)' }}>Tipo:</strong> {activeInfoAlgo.algorithmType || getFallbackType(activeInfoAlgo.category, activeInfoAlgo.name)}
+                </div>
+
+                <div>
+                  <strong style={{ color: 'var(--accent-light)' }}>Status no RustHash:</strong>{' '}
+                  {activeInfoAlgo.implemented ? (
+                    <span style={{ color: '#10b981', fontWeight: 700 }}>● IMPLEMENTADO (Calculado localmente em tempo real)</span>
+                  ) : (
+                    <span style={{ color: 'var(--muted)', fontStyle: 'italic' }}>○ NÃO IMPLEMENTADO (Fins informativos)</span>
+                  )}
+                </div>
+
+                <div>
+                  <strong style={{ color: 'var(--accent-light)' }}>Segurança Atual:</strong>{' '}
                   <span className={`badge-sec ${getSecurityBadgeInfo(activeInfoAlgo.securityLevel).className}`}>
                     {getSecurityBadgeInfo(activeInfoAlgo.securityLevel).text}
                   </span>
                 </div>
 
                 <div>
-                  <strong style={{ color: 'var(--accent-light)' }}>Sobre o Algoritmo:</strong>
+                  <strong style={{ color: 'var(--accent-light)' }}>Histórico:</strong>
                   <p style={{ margin: '4px 0 0 0', fontSize: '0.9rem', color: 'var(--text)' }}>
-                    {activeInfoAlgo.description}
+                    {activeInfoAlgo.history || activeInfoAlgo.description}
                   </p>
                 </div>
 
-                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '6px', borderLeft: '3px solid var(--accent)' }}>
-                  <strong style={{ color: 'var(--accent-light)', display: 'block', marginBottom: '4px' }}>Recomendação de Uso:</strong>
-                  <span style={{ color: 'var(--text)' }}>{activeInfoAlgo.recommendation}</span>
+                <div>
+                  <strong style={{ color: 'var(--accent-light)' }}>Uso Original:</strong>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '0.9rem', color: 'var(--text)' }}>
+                    {activeInfoAlgo.originalUse || 'Integridade geral de dados e autenticação legada.'}
+                  </p>
                 </div>
 
-                {activeInfoAlgo.citations.length > 0 && (
-                  <div>
-                    <strong style={{ color: 'var(--accent-light)' }}>Fontes & Citations:</strong>
-                    <ul style={{ margin: '6px 0 0 0', paddingLeft: '20px', color: 'var(--muted)', fontSize: '0.85rem' }}>
-                      {activeInfoAlgo.citations.map((cite, i) => (
-                        <li key={i}>{cite}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '6px', borderLeft: '3px solid var(--accent)' }}>
+                  <strong style={{ color: 'var(--accent-light)', display: 'block', marginBottom: '4px' }}>Uso Recomendado Atualmente:</strong>
+                  <span style={{ color: 'var(--text)' }}>{activeInfoAlgo.recommendedUse || activeInfoAlgo.recommendation}</span>
+                </div>
 
                 <div>
-                  <strong style={{ color: 'var(--accent-light)' }}>Status no RustHash:</strong>{' '}
-                  {activeInfoAlgo.implemented ? (
-                    <span style={{ color: '#10b981', fontWeight: 700 }}>Implementado e calculado em tempo real</span>
-                  ) : (
-                    <span style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Não implementado (Fins informativos/raro)</span>
-                  )}
+                  <strong style={{ color: 'var(--accent-light)' }}>RFC / Padrão:</strong>{' '}
+                  <span style={{ color: 'var(--text)' }}>{activeInfoAlgo.rfcStandard || activeInfoAlgo.citations.join(', ') || 'N/A'}</span>
+                </div>
+
+                <div>
+                  <strong style={{ color: 'var(--accent-light)' }}>Observações Importantes:</strong>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '0.9rem', color: 'var(--text)' }}>
+                    {activeInfoAlgo.notes || 'Nenhuma observação adicional fornecida.'}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
         )}
+
+        {/* Dev Validation Panel */}
+        <div style={{ maxWidth: '800px', margin: '24px auto', padding: '0 16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <button
+              onClick={() => setShowDevPanel(!showDevPanel)}
+              className="info-icon-btn"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px dashed var(--accent)',
+                color: 'var(--accent-light)',
+                borderRadius: '6px',
+                padding: '6px 12px',
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                fontFamily: 'var(--mono)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              <i className="fa-solid fa-code" aria-hidden="true"></i>
+              {showDevPanel ? 'Ocultar Painel de Validação' : 'Mostrar Painel de Validação de Vetores (Dev)'}
+            </button>
+          </div>
+
+          {showDevPanel && (
+            <div
+              className="premium-card"
+              style={{
+                background: 'rgba(10,12,18,0.8)',
+                border: '1px solid var(--accent)',
+                borderRadius: '8px',
+                padding: '16px',
+                textAlign: 'left',
+                fontFamily: 'var(--mono)',
+                fontSize: '0.85rem'
+              }}
+            >
+              <h4 style={{ margin: '0 0 12px 0', color: 'var(--accent-light)', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
+                <i className="fa-solid fa-flask" aria-hidden="true" style={{ marginRight: '8px' }}></i>Área Interna: Validação de Vetores de Teste Criptográficos
+              </h4>
+              <p style={{ margin: '0 0 16px 0', fontSize: '0.8rem', color: 'var(--muted)' }}>
+                Selecione um vetor de teste para carregar no campo de entrada de texto e validar se a saída computada pelo backend Rust/WASM confere com o padrão oficial.
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {[
+                  { name: 'SHA-0 (Vazio)', input: '', algo: 'sha0', expected: 'f96cea198ad1dd5617ac084a3d92c6107708c0ef' },
+                  { name: 'SHA-0 ("abc")', input: 'abc', algo: 'sha0', expected: '0164b8a914cd2a5e74c4f7ff082c4d97f1edf880' },
+                  { name: 'SHA-0 (Fox)', input: 'The quick brown fox jumps over the lazy dog', algo: 'sha0', expected: 'b03b401ba92d77666221e843feebf8c561cea5f7' },
+                  { name: 'Tiger (Fox)', input: 'The quick brown fox jumps over the lazy dog', algo: 'tiger', expected: '6d12a41e72e644f017b6f0e2f7b44c6285f06dd5d2c5b075' },
+                  { name: 'Tiger2 (Fox)', input: 'The quick brown fox jumps over the lazy dog', algo: 'tiger2', expected: '976abff8062a2e9dcea3a1ace966ed9c19cb85558b4976d8' },
+                  { name: 'RIPEMD-128 (Fox)', input: 'The quick brown fox jumps over the lazy dog', algo: 'ripemd128', expected: '3fa9b57f053c053fbe2735b2380db596' },
+                  { name: 'GOST R 34.11-94 (Fox)', input: 'The quick brown fox jumps over the lazy dog', algo: 'gost94', expected: '9004294a361a508c586fe53d1f1b02746765e71b765472786e4770d565830a76' },
+                  { name: 'Streebog-256 (Fox)', input: 'The quick brown fox jumps over the lazy dog', algo: 'streebog256', expected: '3e7dea7f2384b6c5a3d0e24aaa29c05e89ddd762145030ec22c71a6db8b2c1f4' }
+                ].map((tc, idx) => {
+                  const currentVal = hashes ? hashes[tc.algo] : '';
+                  const isInputMatch = text === tc.input && activeTab === 'text';
+                  const isHashMatch = currentVal?.toLowerCase() === tc.expected.toLowerCase();
+
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        background: 'rgba(255,255,255,0.02)',
+                        padding: '10px',
+                        borderRadius: '6px',
+                        border: isInputMatch ? '1px solid var(--accent)' : '1px solid transparent'
+                      }}
+                    >
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxWidth: '70%' }}>
+                        <span style={{ fontWeight: 700, color: '#fff' }}>{tc.name}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Input: <code style={{ color: 'var(--accent-light)' }}>"{tc.input}"</code></span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Esperado: <code style={{ color: 'var(--muted-dark)' }}>{tc.expected}</code></span>
+                        {isInputMatch && (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Computado: <code style={{ color: isHashMatch ? '#10b981' : '#ef4444' }}>{currentVal || 'Calculando...'}</code></span>
+                        )}
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        {isInputMatch ? (
+                          isHashMatch ? (
+                            <span style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700 }}>
+                              <i className="fa-solid fa-check" aria-hidden="true" style={{ marginRight: '4px' }}></i>PASS
+                            </span>
+                          ) : (
+                            <span style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700 }}>
+                              <i className="fa-solid fa-xmark" aria-hidden="true" style={{ marginRight: '4px' }}></i>FAIL
+                            </span>
+                          )
+                        ) : (
+                          <span style={{ color: 'var(--muted)', fontSize: '0.75rem', fontStyle: 'italic' }}>Não carregado</span>
+                        )}
+
+                        <button
+                          onClick={() => {
+                            setActiveTab('text');
+                            setText(tc.input);
+                          }}
+                          style={{
+                            background: 'var(--accent)',
+                            border: 'none',
+                            color: '#000',
+                            borderRadius: '4px',
+                            padding: '4px 8px',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                            fontWeight: 700
+                          }}
+                        >
+                          Carregar e Validar
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Informational Security Footer as requested */}
         <footer className="site-footer">
