@@ -726,8 +726,9 @@ textarea:focus {
   color: #10b981 !important;
 }
 
-/* Info Icon Buttons inside cli-panel */
-.cli-panel .info-icon-btn {
+/* Info Icon Buttons inside cli-panel and explorer-grid */
+.cli-panel .info-icon-btn,
+.explorer-grid .info-icon-btn {
   color: #c5bba8 !important; /* Explicit high-contrast icon color */
   background: #1c1d27 !important; /* Solid, legible background */
   border: 1px solid #867d6c !important;
@@ -742,10 +743,19 @@ textarea:focus {
   justify-content: center;
 }
 
-.cli-panel .info-icon-btn:hover {
+.cli-panel .info-icon-btn:hover,
+.explorer-grid .info-icon-btn:hover {
   color: #ffffff !important;
   background: #252735 !important;
   border-color: #c5bba8 !important;
+}
+
+.cli-panel .info-icon-btn:focus,
+.explorer-grid .info-icon-btn:focus,
+.cli-panel .info-icon-btn:focus-visible,
+.explorer-grid .info-icon-btn:focus-visible {
+  outline: 2px solid var(--accent-light) !important;
+  outline-offset: 2px !important;
 }
 
 /* Compare Section Design System addition */
