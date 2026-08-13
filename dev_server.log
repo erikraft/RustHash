@@ -55,3 +55,13 @@ warning: fields `uid` and `applications` are never read
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
+5:18:18 PM [vite] page reload src/pkg/hash_wasm.js
+5:18:18 PM [vite] page reload src/pkg/hash_wasm.js
+5:24:56 PM [vite] hmr update /src/styles.css
+5:25:15 PM [vite] hmr update /src/styles.css
+5:25:31 PM [vite] hmr update /src/styles.css
+5:28:58 PM [vite] hmr update /src/App.tsx
+5:29:24 PM [vite] hmr update /src/App.tsx
+5:29:39 PM [vite] hmr update /src/App.tsx
+5:29:57 PM [vite] hmr update /src/App.tsx
+5:30:51 PM [vite] page reload src/pkg/hash_wasm.js

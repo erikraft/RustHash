@@ -202,48 +202,40 @@ export default function App() {
     const gsap = getGSAP();
     if (!gsap || isReducedMotion()) return;
 
-    // Animate header, tabs, sections and cards with staggering
+    // Animate header, tabs, sections and cards with staggering using fromTo for deterministic rendering in React
     const tl = gsap.timeline();
-    tl.from(".site-header", {
-      opacity: 0,
-      y: -20,
-      duration: 0.6,
-      ease: "power2.out"
-    })
-    .from(".tabs", {
-      opacity: 0,
-      y: 10,
-      duration: 0.4,
-      ease: "power2.out"
-    }, "-=0.3")
-    .from(".input-section", {
-      opacity: 0,
-      y: 20,
-      duration: 0.6,
-      ease: "power3.out"
-    }, "-=0.2")
-    .from(".cli-panel", {
-      opacity: 0,
-      y: 20,
-      duration: 0.6,
-      ease: "power3.out"
-    }, "-=0.4")
-    .from(".algos-explorer", {
-      opacity: 0,
-      y: 20,
-      duration: 0.6,
-      ease: "power3.out"
-    }, "-=0.4")
-    .from(".result-card", {
-      opacity: 0,
-      scale: 0.95,
-      duration: 0.4,
-      stagger: 0.05,
-      ease: "power1.out"
-    }, "-=0.3");
+    tl.fromTo(".site-header",
+      { opacity: 0, y: -20 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+    )
+    .fromTo(".tabs",
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
+      "-=0.3"
+    )
+    .fromTo(".input-section",
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+      "-=0.2"
+    )
+    .fromTo(".cli-panel",
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+      "-=0.4"
+    )
+    .fromTo(".algos-explorer",
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+      "-=0.4"
+    )
+    .fromTo(".result-card",
+      { opacity: 0, scale: 0.95 },
+      { opacity: 1, scale: 1, duration: 0.4, stagger: 0.05, ease: "power1.out" },
+      "-=0.3"
+    );
 
     return () => {
-      tl.kill();
+      tl.revert(); // Revert GSAP inline style properties to prevent stuck opacity on React double-mount (StrictMode)
     };
   }, [isBooting]);
 
@@ -270,7 +262,7 @@ export default function App() {
     );
 
     return () => {
-      tl.kill();
+      tl.revert(); // Cleanly revert modal animation styles on close/unmount
     };
   }, [activeInfoAlgo]);
 
@@ -589,6 +581,9 @@ export default function App() {
           </button>
           <button
             className={`tab-btn ${activeTab === 'nfc' ? 'active' : ''}`}
+            onMouseEnter={(e) => handleButtonHover(e, true)}
+            onMouseLeave={(e) => handleButtonHover(e, false)}
+            onMouseDown={handleButtonPress}
             onClick={() => {
               setActiveTab('nfc');
               setText('');
@@ -598,7 +593,7 @@ export default function App() {
               setHashes(null);
             }}
           >
-            📡 NFC / RFID
+            <i className="fa-solid fa-satellite-dish" aria-hidden="true" style={{ marginRight: '8px' }}></i>Painel NFC / RFID
           </button>
           <button
             className={`tab-btn ${activeTab === 'cli' ? 'active' : ''}`}
@@ -649,8 +644,9 @@ export default function App() {
                     background: 'rgba(255,255,255,0.02)',
                     borderColor: 'var(--accent)',
                     color: 'var(--accent-light)',
-                    display: 'flex',
+                    display: 'inline-flex',
                     alignItems: 'center',
+                    justifyContent: 'center',
                     gap: '8px'
                   }}
                   onClick={() => setShowParams(!showParams)}
@@ -666,17 +662,13 @@ export default function App() {
                   className="parameter-panel"
                   style={{
                     marginTop: '20px',
-                    padding: '20px',
                     border: '1px solid var(--border)',
                     borderRadius: '8px',
                     background: 'rgba(5,5,10,0.85)',
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: '24px',
                     textAlign: 'left'
                   }}
                 >
-                  <div style={{ gridColumn: 'span 2', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
+                  <div style={{ gridColumn: '1 / -1', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
                     <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--accent-light)', display: 'flex', alignItems: 'center', gap: '8px' }}><i className="fa-solid fa-sliders" aria-hidden="true"></i>Ajustar Parâmetros Customizados</h3>
                     <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: 'var(--muted)' }}>
                       Personalize as chaves, salts e custos de processamento. Os hashes correspondentes atualizarão em tempo real.
@@ -689,19 +681,19 @@ export default function App() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem' }}>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>cSHAKE Customization String:</span>
-                        <input type="text" value={cshakeCustomization} onChange={(e) => setCshakeCustomization(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="text" value={cshakeCustomization} onChange={(e) => setCshakeCustomization(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>KMAC Key (chave simétrica):</span>
-                        <input type="text" value={kmacKey} onChange={(e) => setKmacKey(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="text" value={kmacKey} onChange={(e) => setKmacKey(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>KMAC Customization:</span>
-                        <input type="text" value={kmacCustomization} onChange={(e) => setKmacCustomization(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="text" value={kmacCustomization} onChange={(e) => setKmacCustomization(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>TupleHash Customization:</span>
-                        <input type="text" value={tuplehashCustomization} onChange={(e) => setTuplehashCustomization(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="text" value={tuplehashCustomization} onChange={(e) => setTuplehashCustomization(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                     </div>
                   </div>
@@ -709,26 +701,26 @@ export default function App() {
                   {/* Argon2 parameters */}
                   <div>
                     <h4 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', color: '#fff' }}>Argon2 (id/i/d)</h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.8rem' }}>
-                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', gridColumn: 'span 2' }}>
+                    <div className="param-grid-argon" style={{ fontSize: '0.8rem' }}>
+                      <label className="salt-label" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>Salt:</span>
-                        <input type="text" value={argon2Salt} onChange={(e) => setArgon2Salt(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="text" value={argon2Salt} onChange={(e) => setArgon2Salt(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>Memory Cost (KB):</span>
-                        <input type="number" value={argon2m} onChange={(e) => setArgon2m(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="number" value={argon2m} onChange={(e) => setArgon2m(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>Iterations:</span>
-                        <input type="number" value={argon2t} onChange={(e) => setArgon2t(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="number" value={argon2t} onChange={(e) => setArgon2t(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>Parallelism:</span>
-                        <input type="number" value={argon2p} onChange={(e) => setArgon2p(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="number" value={argon2p} onChange={(e) => setArgon2p(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>Out Length (Bytes):</span>
-                        <input type="number" value={argon2len} onChange={(e) => setArgon2outLen(Math.max(4, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="number" value={argon2len} onChange={(e) => setArgon2outLen(Math.max(4, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                     </div>
                   </div>
@@ -737,38 +729,38 @@ export default function App() {
                   <div>
                     <h4 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', color: '#fff' }}>scrypt, bcrypt & PBKDF2</h4>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      <div className="param-grid-2">
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>bcrypt Cost:</span>
-                          <input type="number" value={bcryptCost} onChange={(e) => setBcryptCost(Math.max(4, Math.min(31, Number(e.target.value))))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                          <input type="number" value={bcryptCost} onChange={(e) => setBcryptCost(Math.max(4, Math.min(31, Number(e.target.value))))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                         </label>
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>scrypt Log(N):</span>
-                          <input type="number" value={scryptN} onChange={(e) => setScryptN(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                          <input type="number" value={scryptN} onChange={(e) => setScryptN(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                         </label>
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                      <div className="param-grid-3">
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>scrypt r:</span>
-                          <input type="number" value={scryptR} onChange={(e) => setScryptR(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                          <input type="number" value={scryptR} onChange={(e) => setScryptR(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                         </label>
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>scrypt p:</span>
-                          <input type="number" value={scryptP} onChange={(e) => setScryptP(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                          <input type="number" value={scryptP} onChange={(e) => setScryptP(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                         </label>
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>scrypt out len:</span>
-                          <input type="number" value={scryptLen} onChange={(e) => setScryptLen(Math.max(4, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                          <input type="number" value={scryptLen} onChange={(e) => setScryptLen(Math.max(4, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                         </label>
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      <div className="param-grid-2">
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>PBKDF2 Iterations:</span>
-                          <input type="number" value={pbkdf2Iter} onChange={(e) => setPbkdf2Iter(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                          <input type="number" value={pbkdf2Iter} onChange={(e) => setPbkdf2Iter(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                         </label>
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>PBKDF2 PRF:</span>
-                          <select value={pbkdf2Prf} onChange={(e) => setPbkdf2Prf(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px', height: '31px' }}>
+                          <select value={pbkdf2Prf} onChange={(e) => setPbkdf2Prf(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', height: '37px', width: '100%', boxSizing: 'border-box' }}>
                             <option value="sha256">SHA-256</option>
                             <option value="sha512">SHA-512</option>
                             <option value="sha1">SHA-1</option>
@@ -784,15 +776,15 @@ export default function App() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem' }}>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>Latitude (-90.0 a 90.0):</span>
-                        <input type="number" step="0.0001" value={geoLat} onChange={(e) => setGeoLat(Number(e.target.value))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="number" step="0.0001" value={geoLat} onChange={(e) => setGeoLat(Number(e.target.value))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>Longitude (-180.0 a 180.0):</span>
-                        <input type="number" step="0.0001" value={geoLon} onChange={(e) => setGeoLon(Number(e.target.value))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="number" step="0.0001" value={geoLon} onChange={(e) => setGeoLon(Number(e.target.value))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>Precisão (tamanho da string):</span>
-                        <input type="number" value={geoPrecision} onChange={(e) => setGeoPrecision(Math.max(1, Math.min(12, Number(e.target.value))))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="number" value={geoPrecision} onChange={(e) => setGeoPrecision(Math.max(1, Math.min(12, Number(e.target.value))))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                     </div>
                   </div>
@@ -1083,6 +1075,9 @@ export default function App() {
                   {categories.map(cat => (
                     <button
                       key={cat}
+                      onMouseEnter={(e) => handleButtonHover(e, true)}
+                      onMouseLeave={(e) => handleButtonHover(e, false)}
+                      onMouseDown={handleButtonPress}
                       onClick={() => setSelectedCategory(cat)}
                       className={`filter-badge ${selectedCategory === cat ? 'active' : ''}`}
                       style={{
@@ -1090,12 +1085,15 @@ export default function App() {
                         color: selectedCategory === cat ? '#050508' : 'var(--muted)',
                         border: '1px solid var(--border)',
                         borderRadius: '20px',
-                        padding: '6px 14px',
-                        fontSize: '0.8rem',
+                        padding: '10px 16px',
+                        fontSize: '0.85rem',
                         cursor: 'pointer',
                         fontFamily: 'var(--mono)',
                         fontWeight: selectedCategory === cat ? 700 : 500,
-                        transition: 'all 0.2s ease'
+                        transition: 'all 0.2s ease',
+                        flex: '1 1 auto',
+                        textAlign: 'center',
+                        minWidth: '100px'
                       }}
                     >
                       {cat}
@@ -1103,8 +1101,8 @@ export default function App() {
                   ))}
                 </div>
 
-            {/* Algorithms Grid */}
-            <div className="explorer-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+              {/* Algorithms Grid */}
+              <div className="explorer-grid">
               {filteredAlgorithms.map(algo => {
                 const badge = getSecurityBadgeInfo(algo.securityLevel);
                 const resultsKey = algo.key || algo.name.toLowerCase().replace(/-|\//g, '_');
@@ -1133,7 +1131,7 @@ export default function App() {
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                         <h4 style={{ margin: 0, fontSize: '1.05rem', color: '#fff' }}>{algo.name}</h4>
                         <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: '4px', color: 'var(--muted)' }}>
                           {algo.category}
@@ -1151,7 +1149,7 @@ export default function App() {
                         )}
                         <button
                           className="info-icon-btn"
-                          style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1.1rem' }}
+                          type="button"
                           onMouseEnter={(e) => handleButtonHover(e, true)}
                           onMouseLeave={(e) => handleButtonHover(e, false)}
                           onMouseDown={handleButtonPress}
@@ -1175,7 +1173,7 @@ export default function App() {
                     {/* Rendering the actual hash if implemented */}
                     {algo.implemented && (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                           <span style={{ fontSize: '0.75rem', color: 'var(--muted-dark)', fontFamily: 'var(--mono)' }}>
                             {isValidationDecimal ? 'DÍGITO VERIFICADOR / CHECKSUM:' : 'OUTPUT:'}
                           </span>
