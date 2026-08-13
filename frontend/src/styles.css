@@ -583,19 +583,19 @@ textarea:focus {
 /* High Fidelity CLI Panels — Redesigned Warp/Ghostty style with modern accents */
 .cli-panel {
   width: 100%;
-  background: rgba(8, 8, 12, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
+  background: #0a0b10 !important; /* Extremely high contrast solid dark background, preventing transparency blending */
+  opacity: 1 !important;
+  visibility: visible !important;
+  border: 2px solid #867d6c !important; /* Thick, high-visibility accent border */
   border-radius: 16px;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.85), 0 0 40px rgba(134, 125, 108, 0.05);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.95), 0 0 40px rgba(134, 125, 108, 0.25) !important;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  font-family: var(--mono);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
   font-size: 13px;
   line-height: 1.5;
-  color: #c0caf5;
+  color: #f5f4f6 !important; /* Extremely legible text color */
   transition: all 0.4s var(--transition);
   position: relative;
 }
@@ -606,7 +606,7 @@ textarea:focus {
   inset: 0;
   border-radius: 16px;
   padding: 1px;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent 60%);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), transparent 60%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -615,8 +615,8 @@ textarea:focus {
 }
 
 .cli-panel:hover {
-  border-color: var(--border-glow);
-  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.95), 0 0 50px rgba(134, 125, 108, 0.15);
+  border-color: #c5bba8 !important; /* Premium hover highlight */
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.98), 0 0 50px rgba(134, 125, 108, 0.35) !important;
 }
 
 .cli-header {
@@ -624,8 +624,8 @@ textarea:focus {
   grid-template-columns: 80px 1fr 120px;
   align-items: center;
   padding: 12px 20px;
-  background: rgba(3, 3, 5, 0.85);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: #050508 !important; /* Strong dark background */
+  border-bottom: 2px solid #867d6c !important; /* Thick contrast separation line */
   user-select: none;
 }
 
@@ -640,13 +640,13 @@ textarea:focus {
   border-radius: 50%;
   position: relative;
 }
-.cli-dots .red { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
-.cli-dots .yellow { background: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
-.cli-dots .green { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
+.cli-dots .red { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+.cli-dots .yellow { background: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.5); }
+.cli-dots .green { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
 
 .cli-title {
   justify-self: center;
-  color: var(--accent-light);
+  color: #c5bba8 !important; /* Strong, clear accent title */
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.8px;
@@ -667,8 +667,8 @@ textarea:focus {
 }
 
 .result-card {
-  background: rgba(3, 3, 5, 0.6);
-  border: 1px solid var(--border);
+  background: #111218 !important; /* Solid background with no opacity leaks */
+  border: 1px solid #867d6c !important; /* Visible golden-beige borders */
   border-radius: var(--radius-sm);
   padding: 18px;
   display: flex;
@@ -679,8 +679,8 @@ textarea:focus {
 }
 
 .result-card:hover {
-  border-color: var(--border-glow);
-  background: rgba(13, 14, 20, 0.8);
+  border-color: #c5bba8 !important;
+  background: #151722 !important;
 }
 
 .result-card-header {
@@ -693,17 +693,18 @@ textarea:focus {
   font-size: 0.95rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--accent-light);
-  font-family: var(--mono);
+  color: #c5bba8 !important; /* High contrast heading color */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-weight: 700 !important;
 }
 
 /* Copy button */
 .copy-btn {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border);
+  background: #1c1d27 !important; /* Opaque solid button background */
+  border: 1px solid #867d6c !important;
   border-radius: 6px;
-  color: var(--accent-light);
-  font-family: var(--mono);
+  color: #c5bba8 !important; /* Explicitly defined button color */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
   font-size: 11px;
   padding: 5px 12px;
   cursor: pointer;
@@ -714,15 +715,37 @@ textarea:focus {
 }
 
 .copy-btn:hover {
-  background: rgba(134, 125, 108, 0.12);
-  border-color: var(--accent-light);
-  color: #fff;
+  background: #252735 !important;
+  border-color: #c5bba8 !important;
+  color: #ffffff !important; /* Explicitly defined button hover color */
 }
 
 .copy-btn.copied {
-  background: rgba(16, 185, 129, 0.1);
-  border-color: #10b981;
-  color: #10b981;
+  background: rgba(16, 185, 129, 0.25) !important;
+  border-color: #10b981 !important;
+  color: #10b981 !important;
+}
+
+/* Info Icon Buttons inside cli-panel */
+.cli-panel .info-icon-btn {
+  color: #c5bba8 !important; /* Explicit high-contrast icon color */
+  background: #1c1d27 !important; /* Solid, legible background */
+  border: 1px solid #867d6c !important;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cli-panel .info-icon-btn:hover {
+  color: #ffffff !important;
+  background: #252735 !important;
+  border-color: #c5bba8 !important;
 }
 
 /* Compare Section Design System addition */
@@ -731,31 +754,43 @@ textarea:focus {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: rgba(13, 14, 20, 0.4);
+  background: #111218 !important; /* Solid distinct background with no transparency overlap issues */
   padding: 16px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
+  border: 1px solid #867d6c !important; /* Strong container borders */
+}
+
+.compare-box span {
+  color: #c5bba8 !important; /* Explicit label/heading text color */
+  font-weight: 700 !important;
 }
 
 .compare-box input {
-  background: rgba(3, 3, 5, 0.6);
-  border: 1px solid var(--border);
+  background: #050508 !important; /* Pure solid dark background */
+  border: 1px solid #867d6c !important; /* Strong outline */
   border-radius: 6px;
   padding: 12px 14px;
-  color: var(--text);
-  font-family: var(--mono);
+  color: #ffffff !important; /* Pure white text for typed content - highly visible */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.85rem;
   outline: none;
   width: 100%;
   box-sizing: border-box;
+  caret-color: #c5bba8 !important; /* Explicit caret cursor color */
+}
+
+.compare-box input::placeholder {
+  color: #94929a !important; /* Clearly readable placeholder text */
+  opacity: 1 !important;
 }
 
 .compare-box input:focus {
-  border-color: var(--accent-light);
+  border-color: #c5bba8 !important;
+  box-shadow: 0 0 10px rgba(197, 187, 168, 0.4) !important;
 }
 
 .compare-status {
-  font-family: var(--mono);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.85rem;
   font-weight: 700;
   display: flex;
@@ -764,39 +799,55 @@ textarea:focus {
 }
 
 .compare-status.match {
-  color: #10b981;
+  color: #10b981 !important; /* Bright green match status */
 }
 
 .compare-status.mismatch {
-  color: #ef4444;
+  color: #ef4444 !important; /* Bright red mismatch status */
 }
 
 /* Hash Containers */
 .hash-container {
-  background: rgba(3, 3, 5, 0.8);
+  background: #050508 !important; /* Solid, deep background for hash text */
   border-radius: var(--radius-sm);
   padding: 14px;
-  font-family: var(--mono);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.9rem;
-  color: #c084fc; /* default purple-glow style */
+  color: #c084fc !important; /* default purple-glow style */
   word-break: break-all;
   overflow-wrap: anywhere;
   white-space: normal;
   min-height: 48px;
   display: flex;
   align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(134, 125, 108, 0.3) !important; /* Strong clear container border */
 }
 
-.hash-container.sha256 { color: #60a5fa; }
-.hash-container.sha512 { color: #c084fc; }
-.hash-container.md5 { color: #22d3ee; }
-.hash-container.blake3 { color: #fb923c; }
+/* Strong distinct colors for each hash output container type to prevent blend-in */
+.hash-container.sha256 { color: #60a5fa !important; }
+.hash-container.sha512 { color: #c084fc !important; }
+.hash-container.md5 { color: #22d3ee !important; }
+.hash-container.blake3 { color: #fb923c !important; }
 
 .hash-placeholder {
-  color: var(--muted-dark);
-  font-style: italic;
+  color: #94929a !important; /* Highly visible placeholder text */
+  font-style: italic !important;
   font-size: 0.85rem;
+}
+
+/* Code and command block standards for complete compliance (Requirement 5) */
+.cli-panel pre,
+.cli-panel code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  color: #ffffff !important;
+  background: #050508 !important;
+  border: 1px solid #867d6c !important;
+  padding: 12px !important;
+  border-radius: 6px !important;
+  overflow-x: auto !important;
+  white-space: pre-wrap !important;
+  word-break: break-all !important;
+  font-size: 13px !important;
 }
 
 /* Spinner & Loading */
