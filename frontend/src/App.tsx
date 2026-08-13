@@ -202,48 +202,40 @@ export default function App() {
     const gsap = getGSAP();
     if (!gsap || isReducedMotion()) return;
 
-    // Animate header, tabs, sections and cards with staggering
+    // Animate header, tabs, sections and cards with staggering using fromTo for deterministic rendering in React
     const tl = gsap.timeline();
-    tl.from(".site-header", {
-      opacity: 0,
-      y: -20,
-      duration: 0.6,
-      ease: "power2.out"
-    })
-    .from(".tabs", {
-      opacity: 0,
-      y: 10,
-      duration: 0.4,
-      ease: "power2.out"
-    }, "-=0.3")
-    .from(".input-section", {
-      opacity: 0,
-      y: 20,
-      duration: 0.6,
-      ease: "power3.out"
-    }, "-=0.2")
-    .from(".cli-panel", {
-      opacity: 0,
-      y: 20,
-      duration: 0.6,
-      ease: "power3.out"
-    }, "-=0.4")
-    .from(".algos-explorer", {
-      opacity: 0,
-      y: 20,
-      duration: 0.6,
-      ease: "power3.out"
-    }, "-=0.4")
-    .from(".result-card", {
-      opacity: 0,
-      scale: 0.95,
-      duration: 0.4,
-      stagger: 0.05,
-      ease: "power1.out"
-    }, "-=0.3");
+    tl.fromTo(".site-header",
+      { opacity: 0, y: -20 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+    )
+    .fromTo(".tabs",
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
+      "-=0.3"
+    )
+    .fromTo(".input-section",
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+      "-=0.2"
+    )
+    .fromTo(".cli-panel",
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+      "-=0.4"
+    )
+    .fromTo(".algos-explorer",
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+      "-=0.4"
+    )
+    .fromTo(".result-card",
+      { opacity: 0, scale: 0.95 },
+      { opacity: 1, scale: 1, duration: 0.4, stagger: 0.05, ease: "power1.out" },
+      "-=0.3"
+    );
 
     return () => {
-      tl.kill();
+      tl.revert(); // Revert GSAP inline style properties to prevent stuck opacity on React double-mount (StrictMode)
     };
   }, [isBooting]);
 
@@ -270,7 +262,7 @@ export default function App() {
     );
 
     return () => {
-      tl.kill();
+      tl.revert(); // Cleanly revert modal animation styles on close/unmount
     };
   }, [activeInfoAlgo]);
 
