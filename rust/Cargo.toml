@@ -1,10 +1,16 @@
 [package]
-name = "hash_wasm"
+name = "rusthash-core"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
+
+[workspace]
+members = [
+    ".",
+    "cli",
+]
 
 [dependencies]
 wasm-bindgen = "0.2"
