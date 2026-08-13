@@ -895,18 +895,16 @@ export default function App() {
                 />
               </div>
 
-              <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div className="compare-box">
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: '0.8rem', color: 'var(--accent-light)', textTransform: 'uppercase', fontWeight: 700 }}>
-                    🔍 Comparar / Verificar Match do Hash
-                  </span>
-                  <input
-                    type="text"
-                    placeholder="Cole um hash externo para verificar se há correspondência automática..."
-                    value={compareHash}
-                    onChange={(e) => setCompareHash(e.target.value.trim().toLowerCase())}
-                  />
-                </div>
+              <div className="results-grid">
+                {[
+                  { label: 'SHA-256', key: 'sha256' },
+                  { label: 'SHA-512', key: 'sha512' },
+                  { label: 'MD5', key: 'md5' },
+                  { label: 'BLAKE3', key: 'blake3' }
+                ].map(({ label, key }) => {
+                  const val = hashes ? hashes[key] : '';
+                  const hasMatchValue = compareHash.length > 0 && val && val.length > 0;
+                  const isMatch = val && val.toLowerCase() === compareHash;
 
                   return (
                     <div
@@ -948,89 +946,46 @@ export default function App() {
                             >
                               {copiedAlgo === label ? <i className="fa-solid fa-circle-check" aria-hidden="true"></i> : <i className="fa-solid fa-copy" aria-hidden="true"></i>} {copiedAlgo === label ? 'Copiado' : 'Copiar'}
                             </button>
-                          </div>
-                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                            {hasMatchValue && (
-                              <span className={`compare-status ${isMatch ? 'match' : 'mismatch'}`}>
-                                {isMatch ? '✓ Correspondente' : '✗ Diferente'}
-                              </span>
-                            )}
-                            {val && (
-                              <button
-                                className={`copy-btn ${copiedAlgo === label ? 'copied' : ''}`}
-                                onClick={() => copyToClipboard(label, val)}
-                              >
-                                {copiedAlgo === label ? '✓ Copiado' : '📋 Copiar'}
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                        <div className={`hash-container ${key}`}>
-                          {val ? (
-                            <span className="hash">{val}</span>
-                          ) : (
-                            <span className="hash-placeholder">
-                              {isComputing ? 'Processando...' : 'Nenhuma entrada ainda gerada'}
-                            </span>
                           )}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
+                      <div className={`hash-container ${key}`}>
+                        {val ? (
+                          <span className="hash">{val}</span>
+                        ) : (
+                          <span className="hash-placeholder">
+                            {isComputing ? 'Processando...' : 'Nenhuma entrada ainda gerada'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </section>
-
-          {/* New Expanded Algorithms Explorer Interface */}
-          <section className="premium-card algos-explorer">
-            <div className="explorer-header" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '16px', marginBottom: '20px' }}>
-              <h2 style={{ border: 'none', margin: 0, padding: 0, display: 'flex', alignItems: 'center', gap: '10px' }}><i className="fa-solid fa-compass" aria-hidden="true"></i>Explorer de Algoritmos Completo</h2>
-              <p style={{ margin: '8px 0 0 0' }}>
-                Pesquise e compare mais de 100 algoritmos de hashing criptográficos, somas de verificação, hashes rápidos e fuzzy.
-              </p>
-            </div>
 
           {/* New Expanded Algorithms Explorer Interface hidden for NFC tab */}
           {activeTab !== 'nfc' && (
             <section className="premium-card algos-explorer">
               <div className="explorer-header" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '16px', marginBottom: '20px' }}>
-                <h2 style={{ border: 'none', margin: 0, padding: 0 }}>⚙️ Explorer de Algoritmos Completo</h2>
+                <h2 style={{ border: 'none', margin: 0, padding: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <i className="fa-solid fa-compass" aria-hidden="true"></i>Explorer de Algoritmos Completo
+                </h2>
                 <p style={{ margin: '8px 0 0 0' }}>
                   Pesquise e compare mais de 100 algoritmos de hashing criptográficos, somas de verificação, hashes rápidos e fuzzy.
                 </p>
               </div>
 
-              <div className="category-filters-container" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {categories.map(cat => (
-                  <button
-                    key={cat}
-                    onMouseEnter={(e) => handleButtonHover(e, true)}
-                    onMouseLeave={(e) => handleButtonHover(e, false)}
-                    onMouseDown={handleButtonPress}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`filter-badge ${selectedCategory === cat ? 'active' : ''}`}
-                    style={{
-                      width: '100%',
-                      background: 'rgba(3,3,5,0.7)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '8px',
-                      padding: '12px 16px',
-                      color: 'var(--text)',
-                      fontFamily: 'var(--mono)',
-                      fontSize: '0.9rem',
-                      outline: 'none',
-                      transition: 'border-color 0.3s ease'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = 'var(--accent-light)'}
-                    onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
-                  />
-                </div>
-
-                <div className="category-filters-container" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {/* Category selector pills and Search Box */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+                <div className="category-filters" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   {categories.map(cat => (
                     <button
                       key={cat}
+                      onMouseEnter={(e) => handleButtonHover(e, true)}
+                      onMouseLeave={(e) => handleButtonHover(e, false)}
+                      onMouseDown={handleButtonPress}
                       onClick={() => setSelectedCategory(cat)}
                       className={`filter-badge ${selectedCategory === cat ? 'active' : ''}`}
                       style={{
@@ -1050,10 +1005,29 @@ export default function App() {
                     </button>
                   ))}
                 </div>
+
+                <div className="search-box" style={{ flex: '1', maxWidth: '300px', minWidth: '200px' }}>
+                  <input
+                    type="text"
+                    placeholder="Pesquisar algoritmo..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{
+                      width: '100%',
+                      background: 'rgba(0,0,0,0.2)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '20px',
+                      padding: '8px 16px',
+                      color: 'var(--text)',
+                      fontSize: '0.85rem',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
               </div>
 
-            {/* Algorithms Grid */}
-            <div className="explorer-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+              {/* Algorithms Grid */}
+              <div className="explorer-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
               {filteredAlgorithms.map(algo => {
                 const badge = getSecurityBadgeInfo(algo.securityLevel);
                 const resultsKey = algo.key || algo.name.toLowerCase().replace(/-|\//g, '_');
@@ -1110,8 +1084,9 @@ export default function App() {
                           <i className="fa-solid fa-circle-info" aria-hidden="true"></i>
                         </button>
                       </div>
+                    </div>
 
-                      <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)' }}>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)' }}>
                         {algo.description}
                       </p>
 
@@ -1150,9 +1125,10 @@ export default function App() {
                               </button>
                             )}
                           </div>
+                        </div>
 
-                          <div
-                            className="mini-hash-container"
+                        <div
+                          className="mini-hash-container"
                             style={{
                               background: 'rgba(3,3,5,0.7)',
                               padding: '8px 12px',
