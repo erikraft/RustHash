@@ -942,8 +942,25 @@ textarea:focus {
   margin-top: 10px;
 }
 
+.explorer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .explorer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .explorer-card {
   transition: all 0.3s var(--transition);
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
 }
 
 .explorer-card:hover {
@@ -985,11 +1002,50 @@ textarea:focus {
   display: grid !important;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
   gap: 16px !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+}
+
+/* Subgrids inside parameter panel */
+.param-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.param-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.param-grid-argon {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+}
+
+.param-grid-argon .salt-label {
+  grid-column: span 2;
 }
 
 @media (max-width: 600px) {
   .parameter-panel {
     grid-template-columns: 1fr !important;
+    padding: 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .param-grid-2,
+  .param-grid-3,
+  .param-grid-argon {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .param-grid-argon .salt-label {
+    grid-column: 1 / -1 !important;
   }
 }
 
@@ -1007,9 +1063,10 @@ textarea:focus {
 }
 
 .mini-hash-container {
-  word-break: break-all;
-  overflow-wrap: anywhere;
-  white-space: normal;
+  word-break: break-all !important;
+  overflow-wrap: anywhere !important;
+  white-space: normal !important;
+  box-sizing: border-box !important;
 }
 
 /* Reduced motion support */
@@ -1077,5 +1134,17 @@ textarea:focus {
   }
   .capabilities-row > div {
     text-align: center;
+  }
+  .category-filters button {
+    padding: 8px 12px !important;
+    font-size: 0.75rem !important;
+    min-width: 85px !important;
+  }
+  .premium-card h2 {
+    font-size: 1.15rem !important;
+  }
+  .explorer-header p {
+    font-size: 0.8rem !important;
+    line-height: 1.4 !important;
   }
 }

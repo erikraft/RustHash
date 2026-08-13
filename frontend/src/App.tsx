@@ -649,14 +649,13 @@ export default function App() {
                   className="parameter-panel"
                   style={{
                     marginTop: '20px',
-                    padding: '20px',
                     border: '1px solid var(--border)',
                     borderRadius: '8px',
                     background: 'rgba(5,5,10,0.85)',
                     textAlign: 'left'
                   }}
                 >
-                  <div style={{ gridColumn: 'span 2', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
+                  <div style={{ gridColumn: '1 / -1', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
                     <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--accent-light)', display: 'flex', alignItems: 'center', gap: '8px' }}><i className="fa-solid fa-sliders" aria-hidden="true"></i>Ajustar Parâmetros Customizados</h3>
                     <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: 'var(--muted)' }}>
                       Personalize as chaves, salts e custos de processamento. Os hashes correspondentes atualizarão em tempo real.
@@ -689,8 +688,8 @@ export default function App() {
                   {/* Argon2 parameters */}
                   <div>
                     <h4 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', color: '#fff' }}>Argon2 (id/i/d)</h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '10px', fontSize: '0.8rem' }}>
-                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', gridColumn: 'span 2' }}>
+                    <div className="param-grid-argon" style={{ fontSize: '0.8rem' }}>
+                      <label className="salt-label" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>Salt:</span>
                         <input type="text" value={argon2Salt} onChange={(e) => setArgon2Salt(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
@@ -717,7 +716,7 @@ export default function App() {
                   <div>
                     <h4 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', color: '#fff' }}>scrypt, bcrypt & PBKDF2</h4>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      <div className="param-grid-2">
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>bcrypt Cost:</span>
                           <input type="number" value={bcryptCost} onChange={(e) => setBcryptCost(Math.max(4, Math.min(31, Number(e.target.value))))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
@@ -727,7 +726,7 @@ export default function App() {
                           <input type="number" value={scryptN} onChange={(e) => setScryptN(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                         </label>
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                      <div className="param-grid-3">
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>scrypt r:</span>
                           <input type="number" value={scryptR} onChange={(e) => setScryptR(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
@@ -741,7 +740,7 @@ export default function App() {
                           <input type="number" value={scryptLen} onChange={(e) => setScryptLen(Math.max(4, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                         </label>
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      <div className="param-grid-2">
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>PBKDF2 Iterations:</span>
                           <input type="number" value={pbkdf2Iter} onChange={(e) => setPbkdf2Iter(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
@@ -1024,7 +1023,7 @@ export default function App() {
               </div>
 
               {/* Algorithms Grid */}
-              <div className="explorer-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+              <div className="explorer-grid">
               {filteredAlgorithms.map(algo => {
                 const badge = getSecurityBadgeInfo(algo.securityLevel);
                 const resultsKey = algo.key || algo.name.toLowerCase().replace(/-|\//g, '_');
@@ -1053,7 +1052,7 @@ export default function App() {
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                         <h4 style={{ margin: 0, fontSize: '1.05rem', color: '#fff' }}>{algo.name}</h4>
                         <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: '4px', color: 'var(--muted)' }}>
                           {algo.category}
@@ -1095,7 +1094,7 @@ export default function App() {
                     {/* Rendering the actual hash if implemented */}
                     {algo.implemented && (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                           <span style={{ fontSize: '0.75rem', color: 'var(--muted-dark)', fontFamily: 'var(--mono)' }}>
                             {isValidationDecimal ? 'DÍGITO VERIFICADOR / CHECKSUM:' : 'OUTPUT:'}
                           </span>

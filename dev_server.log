@@ -1,61 +1,20 @@
 
-> rusthash-root@0.1.0 dev
-> npm run build:wasm && npm run --prefix frontend dev
-
-
-> rusthash-root@0.1.0 build:wasm
-> npx wasm-pack build rust --out-dir ../frontend/src/pkg --target web
-
-[INFO]: 🎯  Checking for the Wasm target...
-[INFO]: 🌀  Compiling to Wasm...
-warning: field `uid` is never read
- --> src/nfc/mifare_classic.rs:5:5
-  |
-4 | pub struct MifareClassic1k {
-  |            --------------- field in this struct
-5 |     uid: Vec<u8>,
-  |     ^^^
-  |
-  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
-
-
-warning: field `uid` is never read
- --> src/nfc/mifare_ultralight.rs:5:5
-  |
-4 | pub struct MifareUltralight {
-  |            ---------------- field in this struct
-5 |     uid: Vec<u8>,
-  |     ^^^
-
-
-    Finished `release` profile [optimized] target(s) in 0.07s
-warning: fields `uid` and `applications` are never read
- --> src/nfc/desfire.rs:5:5
-  |
-4 | pub struct MifareDesfire {
-  |            ------------- fields in this struct
-5 |     uid: Vec<u8>,
-  |     ^^^
-6 |     applications: Vec<u32>,
-  |     ^^^^^^^^^^^^
-
-
-[INFO]: ⬇️  Installing wasm-bindgen...
-[INFO]: Optimizing wasm binaries with `wasm-opt`...
-[INFO]: Optional fields missing from Cargo.toml: 'description', 'repository', and 'license'. These are not necessary, but recommended
-[INFO]: ✨   Done in 6.26s
-[INFO]: 📦   Your wasm pkg is ready to publish at frontend/src/pkg.
-
 > hash-generator-frontend@0.1.0 dev
 > vite
 
 [33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
 
-  VITE v5.2.0  ready in 541 ms
+  VITE v5.2.0  ready in 838 ms
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
-3:02:10 PM [vite] hmr update /src/App.tsx
-3:02:18 PM [vite] page reload src/pkg/hash_wasm.js
-3:06:06 PM [vite] hmr update /src/App.tsx
-3:06:15 PM [vite] page reload src/pkg/hash_wasm.js
+5:18:18 PM [vite] page reload src/pkg/hash_wasm.js
+5:18:18 PM [vite] page reload src/pkg/hash_wasm.js
+5:24:56 PM [vite] hmr update /src/styles.css
+5:25:15 PM [vite] hmr update /src/styles.css
+5:25:31 PM [vite] hmr update /src/styles.css
+5:28:58 PM [vite] hmr update /src/App.tsx
+5:29:24 PM [vite] hmr update /src/App.tsx
+5:29:39 PM [vite] hmr update /src/App.tsx
+5:29:57 PM [vite] hmr update /src/App.tsx
+5:30:51 PM [vite] page reload src/pkg/hash_wasm.js
