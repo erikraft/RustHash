@@ -256,7 +256,9 @@ export default function NfcSection() {
   return (
     <section className="premium-card nfc-section">
       <div className="explorer-header" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '16px', marginBottom: '20px' }}>
-        <h2 style={{ border: 'none', margin: 0, padding: 0 }}>📡 Painel NFC / RFID</h2>
+        <h2 style={{ border: 'none', margin: 0, padding: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <i className="fa-solid fa-satellite-dish" aria-hidden="true"></i>Painel NFC / RFID
+        </h2>
         <p style={{ margin: '8px 0 0 0' }}>
           Realize operações de leitura, gravação e formatação NDEF ou simulações seguras de cartões MIFARE localmente.
         </p>
@@ -327,20 +329,20 @@ export default function NfcSection() {
         </div>
 
         {tagInfo && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid var(--border)', paddingTop: '12px', wordBreak: 'break-all', overflowWrap: 'anywhere' }}>
             <div><strong>UID da Tag:</strong> <span style={{ color: '#fff' }}>{tagInfo.uid}</span></div>
             <div><strong>Tipo da Tag:</strong> <span style={{ color: '#fff' }}>{tagInfo.type}</span></div>
             <div><strong>Tecnologia:</strong> <span style={{ color: '#fff' }}>{tagInfo.technology}</span></div>
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+        <div style={{ display: 'flex', gap: '10px', marginTop: '16px', flexWrap: 'wrap' }}>
           <button className="btn btn-primary" onClick={triggerScan}>
-            🔍 Detectar / Escanear Tag
+            <i className="fa-solid fa-magnifying-glass" aria-hidden="true" style={{ marginRight: '8px' }}></i>Detectar / Escanear Tag
           </button>
           {(state === 'WaitingForTag' || state === 'Writing') && (
             <button className="btn btn-secondary" onClick={cancelActiveOperation}>
-              🛑 Cancelar Operação
+              <i className="fa-solid fa-circle-stop" aria-hidden="true" style={{ marginRight: '8px' }}></i>Cancelar Operação
             </button>
           )}
         </div>
@@ -348,7 +350,8 @@ export default function NfcSection() {
 
       {errorMsg && (
         <div className="error-msg" style={{ marginBottom: '20px' }}>
-          <span>⚠️ {errorMsg}</span>
+          <i className="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+          <span>{errorMsg}</span>
         </div>
       )}
 
@@ -361,10 +364,14 @@ export default function NfcSection() {
             border: '1px solid var(--border)',
             borderRadius: '8px',
             padding: '16px',
-            background: 'rgba(3,3,5,0.3)'
+            background: 'rgba(3,3,5,0.3)',
+            boxSizing: 'border-box',
+            maxWidth: '100%'
           }}
         >
-          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>📝 Gravação de Mensagem NDEF</h3>
+          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border)', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <i className="fa-solid fa-pen-to-square" aria-hidden="true"></i>Gravação de Mensagem NDEF
+          </h3>
 
           <div className="control-group" style={{ marginBottom: '14px' }}>
             <label style={{ display: 'block', marginBottom: '6px' }}>Tipo de Registro:</label>
@@ -379,8 +386,8 @@ export default function NfcSection() {
                     color: recordType === t ? '#050508' : 'var(--muted)',
                     border: '1px solid var(--border)',
                     borderRadius: '20px',
-                    padding: '4px 12px',
-                    fontSize: '0.75rem',
+                    padding: '8px 14px',
+                    fontSize: '0.8rem',
                     cursor: 'pointer'
                   }}
                 >
@@ -396,15 +403,16 @@ export default function NfcSection() {
               type="text"
               value={recordContent}
               onChange={(e) => setRecordContent(e.target.value)}
-              placeholder="Ex: 'Olá RustHash!' ou 'https://rusthash.vercel.app'"
+              placeholder="Ex: 'Olá RustHash!' ou 'https://hash.erikraft.com/'"
               style={{
                 width: '100%',
                 background: 'rgba(3,3,5,0.7)',
                 border: '1px solid var(--border)',
                 borderRadius: '8px',
-                padding: '10px 14px',
+                padding: '12px 14px',
                 color: '#fff',
-                fontFamily: 'var(--mono)'
+                fontFamily: 'var(--mono)',
+                boxSizing: 'border-box'
               }}
             />
           </div>
@@ -417,19 +425,21 @@ export default function NfcSection() {
               marginBottom: '14px',
               fontSize: '0.8rem',
               color: 'var(--muted)',
-              fontFamily: 'var(--mono)'
+              fontFamily: 'var(--mono)',
+              wordBreak: 'break-all',
+              overflowWrap: 'anywhere'
             }}
           >
             <strong>Pré-visualização do Registro:</strong>
             <div style={{ marginTop: '4px', color: '#fff' }}>{recordPreview}</div>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <button className="btn btn-primary" onClick={triggerWrite}>
-              💾 Gravar NDEF na Tag
+              <i className="fa-solid fa-floppy-disk" aria-hidden="true" style={{ marginRight: '8px' }}></i>Gravar NDEF na Tag
             </button>
             <button className="btn btn-secondary" onClick={formatTag}>
-              🧹 Formatar Tag
+              <i className="fa-solid fa-broom" aria-hidden="true" style={{ marginRight: '8px' }}></i>Formatar Tag
             </button>
           </div>
         </div>
@@ -441,10 +451,14 @@ export default function NfcSection() {
             border: '1px solid var(--border)',
             borderRadius: '8px',
             padding: '16px',
-            background: 'rgba(3,3,5,0.3)'
+            background: 'rgba(3,3,5,0.3)',
+            boxSizing: 'border-box',
+            maxWidth: '100%'
           }}
         >
-          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>🔒 Configurações Seguras MIFARE Classic</h3>
+          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border)', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <i className="fa-solid fa-lock" aria-hidden="true"></i>Configurações Seguras MIFARE Classic
+          </h3>
 
           <div
             style={{
@@ -454,15 +468,16 @@ export default function NfcSection() {
               padding: '12px',
               marginBottom: '16px',
               fontSize: '0.8rem',
-              color: '#fca5a5'
+              color: '#fca5a5',
+              lineHeight: '1.45'
             }}
           >
-            <strong>⚠️ ALERTA DE SEGURANÇA:</strong> MIFARE Classic usa o algoritmo de criptografia proprietário Crypto1, que possui vulnerabilidades criptográficas conhecidas de alta criticidade e não deve ser considerado adequado para novas aplicações de alta segurança ou transações financeiras.
+            <strong><i className="fa-solid fa-triangle-exclamation" aria-hidden="true" style={{ marginRight: '6px' }}></i>ALERTA DE SEGURANÇA:</strong> MIFARE Classic usa o algoritmo de criptografia proprietário Crypto1, que possui vulnerabilidades criptográficas conhecidas de alta criticidade e não deve ser considerado adequado para novas aplicações de alta segurança ou transações financeiras.
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+          <div className="mifare-grid">
             <div>
-              <label style={{ display: 'block', marginBottom: '6px' }}>Fator de Autenticação (Chave de 6 Bytes):</label>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>Fator de Autenticação (Chave de 6 Bytes):</label>
               <input
                 type="text"
                 value={mifareKey}
@@ -472,14 +487,15 @@ export default function NfcSection() {
                   background: 'rgba(3,3,5,0.7)',
                   border: '1px solid var(--border)',
                   borderRadius: '8px',
-                  padding: '10px 14px',
+                  padding: '12px 14px',
                   color: '#fff',
-                  fontFamily: 'var(--mono)'
+                  fontFamily: 'var(--mono)',
+                  boxSizing: 'border-box'
                 }}
               />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '6px' }}>Setor a Autenticar:</label>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>Setor a Autenticar:</label>
               <select
                 value={selectedSector}
                 onChange={(e) => setSelectedSector(Number(e.target.value))}
@@ -488,9 +504,11 @@ export default function NfcSection() {
                   background: 'rgba(3,3,5,0.7)',
                   border: '1px solid var(--border)',
                   borderRadius: '8px',
-                  padding: '10px 14px',
+                  padding: '12px 14px',
                   color: '#fff',
-                  fontFamily: 'var(--mono)'
+                  fontFamily: 'var(--mono)',
+                  boxSizing: 'border-box',
+                  height: '46px'
                 }}
               >
                 {Array.from({ length: 16 }, (_, i) => (
@@ -500,9 +518,9 @@ export default function NfcSection() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+          <div className="mifare-grid">
             <div>
-              <label style={{ display: 'block', marginBottom: '6px' }}>Bloco de Dados (0-63):</label>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>Bloco de Dados (0-63):</label>
               <input
                 type="number"
                 min="0"
@@ -514,14 +532,15 @@ export default function NfcSection() {
                   background: 'rgba(3,3,5,0.7)',
                   border: '1px solid var(--border)',
                   borderRadius: '8px',
-                  padding: '10px 14px',
+                  padding: '12px 14px',
                   color: '#fff',
-                  fontFamily: 'var(--mono)'
+                  fontFamily: 'var(--mono)',
+                  boxSizing: 'border-box'
                 }}
               />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '6px' }}>Dados do Bloco (Hex 16 Bytes):</label>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>Dados do Bloco (Hex 16 Bytes):</label>
               <input
                 type="text"
                 value={blockData}
@@ -531,20 +550,21 @@ export default function NfcSection() {
                   background: 'rgba(3,3,5,0.7)',
                   border: '1px solid var(--border)',
                   borderRadius: '8px',
-                  padding: '10px 14px',
+                  padding: '12px 14px',
                   color: '#fff',
-                  fontFamily: 'var(--mono)'
+                  fontFamily: 'var(--mono)',
+                  boxSizing: 'border-box'
                 }}
               />
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <button className="btn btn-primary" onClick={testMifareAuthentication}>
-              🔑 Autenticar Setor
+              <i className="fa-solid fa-key" aria-hidden="true" style={{ marginRight: '8px' }}></i>Autenticar Setor
             </button>
             <button className="btn btn-secondary" onClick={testMifareWrite}>
-              💾 Gravar Bloco MIFARE
+              <i className="fa-solid fa-floppy-disk" aria-hidden="true" style={{ marginRight: '8px' }}></i>Gravar Bloco MIFARE
             </button>
           </div>
         </div>
@@ -579,8 +599,8 @@ export default function NfcSection() {
               color: '#fff'
             }}
           >
-            <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border)', paddingBottom: '12px', color: '#fca5a5' }}>
-              ⚠️ Confirmar Operação de Gravação
+            <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border)', paddingBottom: '12px', color: '#fca5a5', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <i className="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>Confirmar Operação de Gravação
             </h3>
 
             <p style={{ lineHeight: 1.6, fontSize: '0.9rem' }}>
@@ -604,7 +624,7 @@ export default function NfcSection() {
               Deseja continuar com a gravação destrutiva de dados?
             </p>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', flexWrap: 'wrap' }}>
               <button
                 className="btn btn-secondary"
                 onClick={() => {

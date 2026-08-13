@@ -589,6 +589,9 @@ export default function App() {
           </button>
           <button
             className={`tab-btn ${activeTab === 'nfc' ? 'active' : ''}`}
+            onMouseEnter={(e) => handleButtonHover(e, true)}
+            onMouseLeave={(e) => handleButtonHover(e, false)}
+            onMouseDown={handleButtonPress}
             onClick={() => {
               setActiveTab('nfc');
               setText('');
@@ -598,7 +601,7 @@ export default function App() {
               setHashes(null);
             }}
           >
-            📡 NFC / RFID
+            <i className="fa-solid fa-satellite-dish" aria-hidden="true" style={{ marginRight: '8px' }}></i>Painel NFC / RFID
           </button>
         </div>
 
@@ -636,8 +639,9 @@ export default function App() {
                     background: 'rgba(255,255,255,0.02)',
                     borderColor: 'var(--accent)',
                     color: 'var(--accent-light)',
-                    display: 'flex',
+                    display: 'inline-flex',
                     alignItems: 'center',
+                    justifyContent: 'center',
                     gap: '8px'
                   }}
                   onClick={() => setShowParams(!showParams)}
@@ -657,9 +661,6 @@ export default function App() {
                     border: '1px solid var(--border)',
                     borderRadius: '8px',
                     background: 'rgba(5,5,10,0.85)',
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: '24px',
                     textAlign: 'left'
                   }}
                 >
@@ -676,19 +677,19 @@ export default function App() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem' }}>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>cSHAKE Customization String:</span>
-                        <input type="text" value={cshakeCustomization} onChange={(e) => setCshakeCustomization(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="text" value={cshakeCustomization} onChange={(e) => setCshakeCustomization(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>KMAC Key (chave simétrica):</span>
-                        <input type="text" value={kmacKey} onChange={(e) => setKmacKey(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="text" value={kmacKey} onChange={(e) => setKmacKey(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>KMAC Customization:</span>
-                        <input type="text" value={kmacCustomization} onChange={(e) => setKmacCustomization(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="text" value={kmacCustomization} onChange={(e) => setKmacCustomization(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>TupleHash Customization:</span>
-                        <input type="text" value={tuplehashCustomization} onChange={(e) => setTuplehashCustomization(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="text" value={tuplehashCustomization} onChange={(e) => setTuplehashCustomization(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                     </div>
                   </div>
@@ -696,26 +697,26 @@ export default function App() {
                   {/* Argon2 parameters */}
                   <div>
                     <h4 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', color: '#fff' }}>Argon2 (id/i/d)</h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.8rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '10px', fontSize: '0.8rem' }}>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', gridColumn: 'span 2' }}>
                         <span style={{ color: 'var(--muted)' }}>Salt:</span>
-                        <input type="text" value={argon2Salt} onChange={(e) => setArgon2Salt(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="text" value={argon2Salt} onChange={(e) => setArgon2Salt(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>Memory Cost (KB):</span>
-                        <input type="number" value={argon2m} onChange={(e) => setArgon2m(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="number" value={argon2m} onChange={(e) => setArgon2m(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>Iterations:</span>
-                        <input type="number" value={argon2t} onChange={(e) => setArgon2t(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="number" value={argon2t} onChange={(e) => setArgon2t(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>Parallelism:</span>
-                        <input type="number" value={argon2p} onChange={(e) => setArgon2p(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="number" value={argon2p} onChange={(e) => setArgon2p(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>Out Length (Bytes):</span>
-                        <input type="number" value={argon2len} onChange={(e) => setArgon2outLen(Math.max(4, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="number" value={argon2len} onChange={(e) => setArgon2outLen(Math.max(4, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                     </div>
                   </div>
@@ -727,35 +728,35 @@ export default function App() {
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>bcrypt Cost:</span>
-                          <input type="number" value={bcryptCost} onChange={(e) => setBcryptCost(Math.max(4, Math.min(31, Number(e.target.value))))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                          <input type="number" value={bcryptCost} onChange={(e) => setBcryptCost(Math.max(4, Math.min(31, Number(e.target.value))))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                         </label>
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>scrypt Log(N):</span>
-                          <input type="number" value={scryptN} onChange={(e) => setScryptN(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                          <input type="number" value={scryptN} onChange={(e) => setScryptN(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                         </label>
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>scrypt r:</span>
-                          <input type="number" value={scryptR} onChange={(e) => setScryptR(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                          <input type="number" value={scryptR} onChange={(e) => setScryptR(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                         </label>
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>scrypt p:</span>
-                          <input type="number" value={scryptP} onChange={(e) => setScryptP(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                          <input type="number" value={scryptP} onChange={(e) => setScryptP(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                         </label>
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>scrypt out len:</span>
-                          <input type="number" value={scryptLen} onChange={(e) => setScryptLen(Math.max(4, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                          <input type="number" value={scryptLen} onChange={(e) => setScryptLen(Math.max(4, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                         </label>
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>PBKDF2 Iterations:</span>
-                          <input type="number" value={pbkdf2Iter} onChange={(e) => setPbkdf2Iter(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                          <input type="number" value={pbkdf2Iter} onChange={(e) => setPbkdf2Iter(Math.max(1, Number(e.target.value)))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                         </label>
                         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span style={{ color: 'var(--muted)' }}>PBKDF2 PRF:</span>
-                          <select value={pbkdf2Prf} onChange={(e) => setPbkdf2Prf(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px', height: '31px' }}>
+                          <select value={pbkdf2Prf} onChange={(e) => setPbkdf2Prf(e.target.value)} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', height: '37px', width: '100%', boxSizing: 'border-box' }}>
                             <option value="sha256">SHA-256</option>
                             <option value="sha512">SHA-512</option>
                             <option value="sha1">SHA-1</option>
@@ -771,15 +772,15 @@ export default function App() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem' }}>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>Latitude (-90.0 a 90.0):</span>
-                        <input type="number" step="0.0001" value={geoLat} onChange={(e) => setGeoLat(Number(e.target.value))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="number" step="0.0001" value={geoLat} onChange={(e) => setGeoLat(Number(e.target.value))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>Longitude (-180.0 a 180.0):</span>
-                        <input type="number" step="0.0001" value={geoLon} onChange={(e) => setGeoLon(Number(e.target.value))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="number" step="0.0001" value={geoLon} onChange={(e) => setGeoLon(Number(e.target.value))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ color: 'var(--muted)' }}>Precisão (tamanho da string):</span>
-                        <input type="number" value={geoPrecision} onChange={(e) => setGeoPrecision(Math.max(1, Math.min(12, Number(e.target.value))))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '6px', borderRadius: '4px' }} />
+                        <input type="number" value={geoPrecision} onChange={(e) => setGeoPrecision(Math.max(1, Math.min(12, Number(e.target.value))))} style={{ background: '#000', border: '1px solid var(--border)', color: '#fff', padding: '8px', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }} />
                       </label>
                     </div>
                   </div>
@@ -978,8 +979,8 @@ export default function App() {
               </div>
 
               {/* Category selector pills and Search Box */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
-                <div className="category-filters" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'stretch', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+                <div className="category-filters" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', flex: '1 1 100%', order: 1 }}>
                   {categories.map(cat => (
                     <button
                       key={cat}
@@ -993,12 +994,15 @@ export default function App() {
                         color: selectedCategory === cat ? '#050508' : 'var(--muted)',
                         border: '1px solid var(--border)',
                         borderRadius: '20px',
-                        padding: '6px 14px',
-                        fontSize: '0.8rem',
+                        padding: '10px 16px',
+                        fontSize: '0.85rem',
                         cursor: 'pointer',
                         fontFamily: 'var(--mono)',
                         fontWeight: selectedCategory === cat ? 700 : 500,
-                        transition: 'all 0.2s ease'
+                        transition: 'all 0.2s ease',
+                        flex: '1 1 auto',
+                        textAlign: 'center',
+                        minWidth: '100px'
                       }}
                     >
                       {cat}
@@ -1006,7 +1010,7 @@ export default function App() {
                   ))}
                 </div>
 
-                <div className="search-box" style={{ flex: '1', maxWidth: '300px', minWidth: '200px' }}>
+                <div className="search-box" style={{ flex: '1 1 100%', maxWidth: '100%', order: 2 }}>
                   <input
                     type="text"
                     placeholder="Pesquisar algoritmo..."
@@ -1017,10 +1021,11 @@ export default function App() {
                       background: 'rgba(0,0,0,0.2)',
                       border: '1px solid var(--border)',
                       borderRadius: '20px',
-                      padding: '8px 16px',
+                      padding: '12px 20px',
                       color: 'var(--text)',
-                      fontSize: '0.85rem',
-                      outline: 'none'
+                      fontSize: '0.9rem',
+                      outline: 'none',
+                      boxSizing: 'border-box'
                     }}
                   />
                 </div>
