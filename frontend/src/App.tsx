@@ -1070,7 +1070,7 @@ export default function App() {
                         )}
                         <button
                           className="info-icon-btn"
-                          style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1.1rem' }}
+                          type="button"
                           onMouseEnter={(e) => handleButtonHover(e, true)}
                           onMouseLeave={(e) => handleButtonHover(e, false)}
                           onMouseDown={handleButtonPress}
