@@ -1,4 +1,15 @@
-# RustHash 🦀⚡
+```text
+______          _   _   _           _     
+| ___ \        | | | | | |         | |    
+| |_/ /   _ ___| |_| |_| | __ _ ___| |__  
+|    / | | / __| __|  _  |/ _` / __| '_ \ 
+| |\ \ |_| \__ \ |_| | | | (_| \__ \ | | |
+\_| \_\__,_|___/\__\_| |_/\__,_|___/_| |_|
+                                          
+                                          
+```
+
+# 🦀 RustHash
 
 Uma aplicação web moderna e de alta performance para gerar e comparar hashes localmente usando **Rust + WebAssembly** e **Web Workers** no navegador (privacy-first).
 
