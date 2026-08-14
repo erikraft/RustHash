@@ -8,6 +8,17 @@ export interface HashAlgorithmInfo {
   citations: string[];
   key?: string;
   unimplementedReason?: string; // Reason why it remained unimplemented/informational
+
+  // Metadata fields for info dialog
+  year?: string;
+  author?: string;
+  outputSize?: string;
+  algorithmType?: string;
+  history?: string;
+  originalUse?: string;
+  recommendedUse?: string;
+  rfcStandard?: string;
+  notes?: string;
 }
 
 export const hashAlgorithms: HashAlgorithmInfo[] = [
@@ -318,9 +329,18 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     description: 'A versão original de 1993 do SHA, rapidamente retirada devido a uma falha grave não revelada.',
     securityLevel: 'Obsoleto',
     recommendation: 'Evitar totalmente. Substituído pelo SHA-1 e hoje totalmente quebrado.',
-    implemented: false,
+    implemented: true,
     citations: ['FIPS PUB 180 (1993)'],
-    unimplementedReason: 'Substituído pelo SHA-1 e hoje totalmente quebrado. Não possui crate seguro ativo.'
+    key: 'sha0',
+    year: '1993',
+    author: 'NSA / NIST',
+    outputSize: '160 bits',
+    algorithmType: 'Função Hash Criptográfica',
+    history: 'Primeira versão do Secure Hash Standard publicado pelo NIST em 1993. Foi retirada em 1995 após a descoberta de uma fraqueza significativa e substituída pelo SHA-1, que adicionou uma rotação de 1 bit ao agendamento de mensagens.',
+    originalUse: 'Assinaturas digitais e integridade de dados na administração federal dos EUA.',
+    recommendedUse: 'Apenas para propósitos de demonstração histórica e verificação de sistemas legados.',
+    rfcStandard: 'FIPS PUB 180 (1993)',
+    notes: 'O SHA-0 é altamente inseguro e suscetível a colisões fáceis. Não deve ser usado em nenhum sistema moderno.'
   },
   {
     name: 'MD6',
@@ -368,9 +388,18 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     description: 'Projetado em 1995 por Anderson e Biham para eficiência extrema em CPUs de 64 bits.',
     securityLevel: 'Fraco/Inseguro',
     recommendation: 'Não recomendado. Versões originais vulneráveis a ataques de colisão.',
-    implemented: false,
+    implemented: true,
     citations: ['Tiger spec 1996'],
-    unimplementedReason: 'Vulnerável e sem crate Rust ativo e mantido.'
+    key: 'tiger',
+    year: '1995',
+    author: 'Ross Anderson, Eli Biham',
+    outputSize: '192 bits',
+    algorithmType: 'Função Hash Criptográfica',
+    history: 'Projetado em 1995 por Ross Anderson e Eli Biham para ser extremamente eficiente em arquiteturas de 64 bits de primeira geração, usando tabelas de busca de 64 bits.',
+    originalUse: 'Hashing de arquivos de alta velocidade e integridade em redes de compartilhamento P2P.',
+    recommendedUse: 'Apenas para interoperabilidade legada.',
+    rfcStandard: 'Tiger Specification (1995)',
+    notes: 'Embora tenha 192 bits, a versão original do Tiger é fraca contra ataques de colisão.'
   },
   {
     name: 'Tiger2',
@@ -378,9 +407,18 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     description: 'Variante modificada do Tiger com um padding ligeiramente diferente para corrigir um ataque.',
     securityLevel: 'Fraco/Inseguro',
     recommendation: 'Evitar. Ainda sofre das mesmas fraquezas estruturais centrais do Tiger.',
-    implemented: false,
+    implemented: true,
     citations: ['Tiger2 spec'],
-    unimplementedReason: 'Vulnerável estruturalmente e sem suporte de biblioteca ativa.'
+    key: 'tiger2',
+    year: '1995',
+    author: 'Ross Anderson, Eli Biham',
+    outputSize: '192 bits',
+    algorithmType: 'Função Hash Criptográfica',
+    history: 'Uma variação menor do Tiger original que altera o esquema de preenchimento para ser compatível com MD5/SHA-1.',
+    originalUse: 'Hashing de arquivos em redes P2P.',
+    recommendedUse: 'Evitar devido a fraquezas estruturais similares herdadas do Tiger.',
+    rfcStandard: 'Tiger2 Specification',
+    notes: 'Diferencia-se do Tiger original apenas pela ordem de padding dos bits.'
   },
   {
     name: 'ParallelHash',
@@ -418,9 +456,18 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     description: 'Versão de 128 bits da família RIPEMD, vulnerável a colisões rápidas.',
     securityLevel: 'Fraco/Inseguro',
     recommendation: 'Não recomendado. Use RIPEMD-160 ou SHA-256.',
-    implemented: false,
+    implemented: true,
     citations: ['ISO/IEC 10118-3'],
-    unimplementedReason: 'Vulnerável a colisões e sem crate ativo.'
+    key: 'ripemd128',
+    year: '1996',
+    author: 'Hans Dobbertin, Antoon Bosselaers, Bart Preneel',
+    outputSize: '128 bits',
+    algorithmType: 'Função Hash Criptográfica',
+    history: 'Desenvolvido na Europa no âmbito do projeto europeu RIPE como uma alternativa de 128 bits fortalecida contra colisões que afetavam o RIPEMD original.',
+    originalUse: 'Integridade de dados e assinaturas na Europa.',
+    recommendedUse: 'Não recomendado para novas aplicações devido ao tamanho curto da saída de 128 bits.',
+    rfcStandard: 'ISO/IEC 10118-3',
+    notes: 'Fornece o mesmo nível de segurança básica contra colisões que o RIPEMD original, mas com saídas redundantes.'
   },
   {
     name: 'RIPEMD-256',
@@ -428,9 +475,18 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     description: 'Extensão de 256 bits do RIPEMD que oferece o mesmo nível de segurança prática do RIPEMD-128.',
     securityLevel: 'Fraco/Inseguro',
     recommendation: 'Não recomendado. Projetado apenas para segurança redundante contra colisões acidentais.',
-    implemented: false,
+    implemented: true,
     citations: ['ISO/IEC 10118-3'],
-    unimplementedReason: 'Fornece segurança fraca e redundante.'
+    key: 'ripemd256',
+    year: '1996',
+    author: 'Hans Dobbertin, Antoon Bosselaers, Bart Preneel',
+    outputSize: '256 bits',
+    algorithmType: 'Função Hash Criptográfica',
+    history: 'Uma extensão direta do RIPEMD-128 que dobra o tamanho da saída para 256 bits, mas não aumenta proporcionalmente o nível de segurança de segurança criptográfica.',
+    originalUse: 'Reduzir riscos de colisões acidentais sem precisar de maior complexidade de criptoanálise.',
+    recommendedUse: 'Evitar para novos projetos.',
+    rfcStandard: 'ISO/IEC 10118-3',
+    notes: 'Embora tenha 256 bits de saída, sua segurança interna é comparável a uma função de 128 bits.'
   },
   {
     name: 'RIPEMD-320',
@@ -438,9 +494,18 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     description: 'Extensão de 320 bits do RIPEMD, oferecendo segurança estrutural similar ao RIPEMD-160.',
     securityLevel: 'Seguro',
     recommendation: 'Seguro, mas redundante e raramente suportado em bibliotecas criptográficas.',
-    implemented: false,
+    implemented: true,
     citations: ['ISO/IEC 10118-3'],
-    unimplementedReason: 'Redundante e sem suporte de biblioteca ativa.'
+    key: 'ripemd320',
+    year: '1996',
+    author: 'Hans Dobbertin, Antoon Bosselaers, Bart Preneel',
+    outputSize: '320 bits',
+    algorithmType: 'Função Hash Criptográfica',
+    history: 'Variante de 320 bits do RIPEMD-160 projetada para cenários onde uma saída muito longa é necessária sem exigir resistência maior contra criptoanálise avançada.',
+    originalUse: 'Aplicações que requerem representações longas de hashes de integridade.',
+    recommendedUse: 'Seguro para integridade, mas preterido por padrões mais comuns como SHA-256 ou SHA-512.',
+    rfcStandard: 'ISO/IEC 10118-3',
+    notes: 'Oferece o dobro do tamanho de saída do RIPEMD-160 (320 bits) mantendo o mesmo nível de segurança estrutural de 160 bits.'
   },
   {
     name: 'GOST R 34.11-94',
@@ -448,19 +513,56 @@ export const hashAlgorithms: HashAlgorithmInfo[] = [
     description: 'Padrão criptográfico russo clássico de 256 bits, hoje quebrado e considerado obsoleto.',
     securityLevel: 'Obsoleto',
     recommendation: 'Evitar totalmente. Quebrado estruturalmente.',
-    implemented: false,
+    implemented: true,
     citations: ['RFC 5831'],
-    unimplementedReason: 'Quebrado estruturalmente e obsoleto.'
+    key: 'gost94',
+    year: '1994',
+    author: 'Governo da Federação Russa',
+    outputSize: '256 bits',
+    algorithmType: 'Função Hash Criptográfica',
+    history: 'Desenvolvido e padronizado em 1994 pelo governo russo para substituir funções legadas, sendo subsequentemente substituído pelo Streebog em 2012 devido a fraquezas estruturais contra colisões.',
+    originalUse: 'Padrão governamental de assinaturas digitais na Federação Russa.',
+    recommendedUse: 'Não usar. Totalmente obsoleto e quebrado estruturalmente.',
+    rfcStandard: 'RFC 5831 / GOST R 34.11-94',
+    notes: 'Altamente inseguro na prática moderna devido a ataques teóricos de colisão rápidos.'
   },
   {
-    name: 'Streebog',
+    name: 'Streebog-256',
     category: 'Criptográfico',
-    description: 'Padrão de hash russo atual (GOST R 34.11-2012) que substituiu o obsoleto GOST de 1994.',
+    description: 'Variante de 256 bits do padrão de hash russo atual (GOST R 34.11-2012).',
     securityLevel: 'Seguro',
     recommendation: 'Seguro para uso oficial em jurisdição russa, mas sob constante discussão acadêmica.',
-    implemented: false,
+    implemented: true,
     citations: ['RFC 6986'],
-    unimplementedReason: 'Ausência de crate Rust de nível de produção para WASM.'
+    key: 'streebog256',
+    year: '2012',
+    author: 'Governo da Federação Russa / TC 26',
+    outputSize: '256 bits',
+    algorithmType: 'Função Hash Criptográfica',
+    history: 'Introduzido em 2012 como novo padrão nacional russo de criptografia (GOST R 34.11-2012) para substituir o obsoleto padrão de 1994.',
+    originalUse: 'Integridade e assinaturas oficiais do governo russo.',
+    recommendedUse: 'Recomendado para conformidade governamental russa ou interoperabilidade específica.',
+    rfcStandard: 'RFC 6986',
+    notes: 'Possui uma estrutura parecida com o Whirlpool e AES, mas seu design de S-box é objeto de constantes estudos de segurança.'
+  },
+  {
+    name: 'Streebog-512',
+    category: 'Criptográfico',
+    description: 'Variante de 512 bits do padrão de hash russo atual (GOST R 34.11-2012).',
+    securityLevel: 'Seguro',
+    recommendation: 'Seguro para uso oficial em jurisdição russa, mas sob constante discussão acadêmica.',
+    implemented: true,
+    citations: ['RFC 6986'],
+    key: 'streebog512',
+    year: '2012',
+    author: 'Governo da Federação Russa / TC 26',
+    outputSize: '512 bits',
+    algorithmType: 'Função Hash Criptográfica',
+    history: 'Introduzido em 2012 como nova variante de alta segurança com 512 bits de saída sob o padrão GOST R 34.11-2012.',
+    originalUse: 'Integridade militar e assinaturas de alta segurança do governo russo.',
+    recommendedUse: 'Recomendado para cenários governamentais russos que exigem conformidade máxima.',
+    rfcStandard: 'RFC 6986',
+    notes: 'Utiliza uma chave interna de 512 bits operando em modo de compressão avançado.'
   },
   {
     name: 'Kupyna',

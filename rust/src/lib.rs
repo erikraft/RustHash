@@ -1,6 +1,8 @@
 pub mod nfc;
+pub mod sha0;
 
 use wasm_bindgen::prelude::*;
+use sha0::Sha0;
 use sha2::{Digest as _, Sha256, Sha512, Sha224, Sha384, Sha512_224, Sha512_256};
 use sha1::Sha1;
 use blake3::Hasher as Blake3;
@@ -20,7 +22,30 @@ use sp800_185::{CShake, KMac, TupleHash};
 use ascon_hash::{AsconHash, AsconXof};
 use fletcher::{Fletcher16, Fletcher32};
 
+// New cryptographic imports
+use ripemd::{Ripemd128, Ripemd256, Ripemd320};
+use tiger::{Tiger, Tiger2};
+use gost94::Gost94CryptoPro;
+use streebog::{Streebog256, Streebog512};
+
 // --- Incremental Hashers wrapped for WASM-bindgen ---
+
+#[wasm_bindgen]
+pub struct Sha0Hasher(Sha0);
+
+#[wasm_bindgen]
+impl Sha0Hasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Sha0Hasher {
+        Sha0Hasher(Sha0::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
 
 #[wasm_bindgen]
 pub struct Sha1Hasher(Sha1);
@@ -324,6 +349,23 @@ impl Blake2bHasher {
 }
 
 #[wasm_bindgen]
+pub struct Ripemd128Hasher(Ripemd128);
+
+#[wasm_bindgen]
+impl Ripemd128Hasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Ripemd128Hasher {
+        Ripemd128Hasher(Ripemd128::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
+#[wasm_bindgen]
 pub struct Ripemd160Hasher(Ripemd160);
 
 #[wasm_bindgen]
@@ -331,6 +373,40 @@ impl Ripemd160Hasher {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Ripemd160Hasher {
         Ripemd160Hasher(Ripemd160::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
+#[wasm_bindgen]
+pub struct Ripemd256Hasher(Ripemd256);
+
+#[wasm_bindgen]
+impl Ripemd256Hasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Ripemd256Hasher {
+        Ripemd256Hasher(Ripemd256::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
+#[wasm_bindgen]
+pub struct Ripemd320Hasher(Ripemd320);
+
+#[wasm_bindgen]
+impl Ripemd320Hasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Ripemd320Hasher {
+        Ripemd320Hasher(Ripemd320::new())
     }
     pub fn update(&mut self, chunk: &[u8]) {
         self.0.update(chunk);
@@ -734,6 +810,94 @@ impl DammHasher {
 
 // --- NEW IMPLEMENTED ALGORITHMS & EXTENSIONS ---
 
+// Tiger and Tiger2
+#[wasm_bindgen]
+pub struct TigerHasher(Tiger);
+
+#[wasm_bindgen]
+impl TigerHasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> TigerHasher {
+        TigerHasher(Tiger::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
+#[wasm_bindgen]
+pub struct Tiger2Hasher(Tiger2);
+
+#[wasm_bindgen]
+impl Tiger2Hasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Tiger2Hasher {
+        Tiger2Hasher(Tiger2::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
+// GOST R 34.11-94 CryptoPro and Test Param Sets
+#[wasm_bindgen]
+pub struct Gost94Hasher(Gost94CryptoPro);
+
+#[wasm_bindgen]
+impl Gost94Hasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Gost94Hasher {
+        Gost94Hasher(Gost94CryptoPro::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
+// Streebog-256 and Streebog-512
+#[wasm_bindgen]
+pub struct Streebog256Hasher(Streebog256);
+
+#[wasm_bindgen]
+impl Streebog256Hasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Streebog256Hasher {
+        Streebog256Hasher(Streebog256::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
+#[wasm_bindgen]
+pub struct Streebog512Hasher(Streebog512);
+
+#[wasm_bindgen]
+impl Streebog512Hasher {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Streebog512Hasher {
+        Streebog512Hasher(Streebog512::new())
+    }
+    pub fn update(&mut self, chunk: &[u8]) {
+        self.0.update(chunk);
+    }
+    pub fn finalize(self) -> Vec<u8> {
+        self.0.finalize().to_vec()
+    }
+}
+
 // 1. Ascon-Hash256 Hasher
 #[wasm_bindgen]
 pub struct AsconHash256Hasher(AsconHash);
@@ -1131,6 +1295,13 @@ pub fn encode_geohash(lat: f64, lon: f64, precision: usize) -> Result<String, St
 // --- High-level Full-hashing API calls (for non-incremental text hashing fast paths) ---
 
 #[wasm_bindgen]
+pub fn hash_sha0(data: &[u8]) -> Vec<u8> {
+    let mut hasher = Sha0Hasher::new();
+    hasher.update(data);
+    hasher.finalize()
+}
+
+#[wasm_bindgen]
 pub fn hash_sha256(data: &[u8]) -> Vec<u8> {
     let mut hasher = Sha256Hasher::new();
     hasher.update(data);
@@ -1161,6 +1332,27 @@ pub fn hash_md5(data: &[u8]) -> Vec<u8> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_sha0_empty() {
+        let out = hash_sha0(b"");
+        let hex = hex::encode(out);
+        assert_eq!(hex, "f96cea198ad1dd5617ac084a3d92c6107708c0ef");
+    }
+
+    #[test]
+    fn test_sha0_abc() {
+        let out = hash_sha0(b"abc");
+        let hex = hex::encode(out);
+        assert_eq!(hex, "0164b8a914cd2a5e74c4f7ff082c4d97f1edf880");
+    }
+
+    #[test]
+    fn test_sha0_quick_brown_fox() {
+        let out = hash_sha0(b"The quick brown fox jumps over the lazy dog");
+        let hex = hex::encode(out);
+        assert_eq!(hex, "b03b401ba92d77666221e843feebf8c561cea5f7");
+    }
 
     #[test]
     fn test_sha256_empty() {
@@ -1236,6 +1428,49 @@ mod tests {
     }
 
     // --- NEW DETAILED TESTS FOR EXPANDED ALGORITHMS ---
+
+    #[test]
+    fn test_new_cryptographic_hashes() {
+        // Tiger
+        let mut tiger = TigerHasher::new();
+        tiger.update(b"The quick brown fox jumps over the lazy dog");
+        assert_eq!(hex::encode(tiger.finalize()), "6d12a41e72e644f017b6f0e2f7b44c6285f06dd5d2c5b075");
+
+        // Tiger2
+        let mut tiger2 = Tiger2Hasher::new();
+        tiger2.update(b"The quick brown fox jumps over the lazy dog");
+        assert_eq!(hex::encode(tiger2.finalize()), "976abff8062a2e9dcea3a1ace966ed9c19cb85558b4976d8");
+
+        // RIPEMD-128
+        let mut r128 = Ripemd128Hasher::new();
+        r128.update(b"The quick brown fox jumps over the lazy dog");
+        assert_eq!(hex::encode(r128.finalize()), "3fa9b57f053c053fbe2735b2380db596");
+
+        // RIPEMD-256
+        let mut r256 = Ripemd256Hasher::new();
+        r256.update(b"The quick brown fox jumps over the lazy dog");
+        assert_eq!(hex::encode(r256.finalize()), "c3b0c2f764ac6d576a6c430fb61a6f2255b4fa833e094b1ba8c1e29b6353036f");
+
+        // RIPEMD-320
+        let mut r320 = Ripemd320Hasher::new();
+        r320.update(b"The quick brown fox jumps over the lazy dog");
+        assert_eq!(hex::encode(r320.finalize()), "e7660e67549435c62141e51c9ab1dcc3b1ee9f65c0b3e561ae8f58c5dba3d21997781cd1cc6fbc34");
+
+        // GOST R 34.11-94
+        let mut gost = Gost94Hasher::new();
+        gost.update(b"The quick brown fox jumps over the lazy dog");
+        assert_eq!(hex::encode(gost.finalize()), "9004294a361a508c586fe53d1f1b02746765e71b765472786e4770d565830a76");
+
+        // Streebog-256
+        let mut streebog256 = Streebog256Hasher::new();
+        streebog256.update(b"The quick brown fox jumps over the lazy dog");
+        assert_eq!(hex::encode(streebog256.finalize()), "3e7dea7f2384b6c5a3d0e24aaa29c05e89ddd762145030ec22c71a6db8b2c1f4");
+
+        // Streebog-512
+        let mut streebog512 = Streebog512Hasher::new();
+        streebog512.update(b"The quick brown fox jumps over the lazy dog.");
+        assert_eq!(hex::encode(streebog512.finalize()), "fe0c42f267d921f940faa72bd9fcf84f9f1bd7e9d055e9816e4c2ace1ec83be82d2957cd59b86e123d8f5adee80b3ca08a017599a9fc1a14d940cf87c77df070");
+    }
 
     #[test]
     fn test_ascon_hash256_empty() {

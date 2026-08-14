@@ -1,16 +1,10 @@
 [package]
-name = "rusthash-core"
+name = "hash_wasm"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-crate-type = ["cdylib", "rlib"]
-
-[workspace]
-members = [
-    ".",
-    "cli",
-]
+crate-type = ["cdylib"]
 
 [dependencies]
 wasm-bindgen = "0.2"
@@ -44,6 +38,9 @@ geohash = "0.13"
 ascon-hash = "0.2"
 fletcher = "0.2"
 crc = "3.2"
+tiger = "0.2"
+gost94 = "0.10"
+streebog = "0.10"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
