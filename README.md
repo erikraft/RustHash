@@ -147,3 +147,106 @@ Você pode visualizar a build de produção localmente usando:
 ```bash
 npm run --prefix frontend preview
 ```
+
+---
+
+## 💻 RustHash CLI (Oficial)
+
+O **RustHash CLI** é o cliente oficial de terminal do RustHash. Ele compartilha a mesma biblioteca e lógica de algoritmos do site oficial em Rust (`rusthash-core`), sem qualquer duplicação de lógica ou discrepância de comportamento, proporcionando uma experiência de hashing poderosa, segura e extremamente rápida diretamente no seu terminal.
+
+### 🚀 Instalação Rápida (One-liner)
+
+Não é necessário efetuar downloads manuais de arquivos ou configurar variáveis de ambiente. O instalador oficial detectará seu sistema operacional e arquitetura automaticamente, baixará o binário correto, verificará sua integridade e atualizará seu `PATH`.
+
+#### Windows (PowerShell)
+```powershell
+irm https://hash.erikraft.com/install.ps1 | iex
+```
+
+#### Linux & macOS (bash / zsh / fish)
+```bash
+curl -fsSL https://hash.erikraft.com/install.sh | sh
+```
+
+---
+
+### ⚙️ Comandos do CLI
+
+O CLI do RustHash (`rusthash`) foi desenhado de forma totalmente profissional, sendo totalmente Unix-friendly (perfeito para scripts) e oferecendo uma interface interativa incrível.
+
+#### 1. Modo Interativo
+Se você executar o `rusthash` sem nenhum argumento, ele abrirá um menu interativo completo:
+```bash
+rusthash
+```
+
+#### 2. Hash de Texto
+Gera o hash de uma string. Se nenhum algoritmo for especificado, ele gera SHA-256, SHA-512 e BLAKE3 por padrão:
+```bash
+rusthash hash "Olá RustHash!"
+```
+
+Para gerar com um algoritmo específico e obter apenas o hash de saída (perfeito para scripts):
+```bash
+rusthash hash --algorithm sha256 "Olá RustHash!"
+```
+
+Para obter a saída estruturada em formato JSON:
+```bash
+rusthash hash --algorithm sha256 "Olá RustHash!" --json
+```
+
+#### 3. Hash de Arquivos (Streaming)
+Processa arquivos massivos de forma extremamente otimizada usando streaming em pedaços de buffer para que o uso de RAM permaneça insignificante (nunca carrega arquivos inteiros na RAM):
+```bash
+rusthash file ./Ubuntu.iso --algorithm sha256
+```
+
+Para calcular todos os hashes de integridade e checksums comuns do arquivo simultaneamente:
+```bash
+rusthash file ./Ubuntu.iso --all
+```
+
+#### 4. Verificação de Hashes
+Verifica se o hash de um arquivo corresponde a um valor esperado. Retorna o código de saída `0` para correspondência bem-sucedida e `1` para divergência (ideal para scripts de integração contínua):
+```bash
+rusthash verify ./arquivo.iso --algorithm sha256 --hash <HASH_ESPERADO>
+```
+
+#### 5. Comparação de Hashes
+Compara dois hashes de forma direta e retorna código de saída `0` para igualdade e `1` para desigualdade:
+```bash
+rusthash compare <HASH1> <HASH2>
+```
+
+#### 6. Lista de Algoritmos e Detalhes
+Para listar todos os algoritmos suportados e seu respectivo status de implementação:
+```bash
+rusthash algorithms
+```
+
+Para exibir detalhes, descrição, nível de segurança e recomendações oficiais de um algoritmo específico:
+```bash
+rusthash info sha256
+```
+
+---
+
+### 🔄 Atualização e Desinstalação
+
+#### Atualização Automática
+O RustHash CLI pode se atualizar automaticamente para a versão mais recente diretamente do terminal:
+```bash
+rusthash update
+```
+
+Para automação (ignorar confirmação interativa):
+```bash
+rusthash update --yes
+```
+
+#### Desinstalação Limpa
+Se desejar remover o RustHash CLI de sua máquina de forma limpa e segura:
+```bash
+rusthash uninstall
+```

@@ -57,8 +57,8 @@ const handleCardHover = (e: React.MouseEvent<HTMLElement>, isEnter: boolean) => 
 };
 
 export default function App() {
-  // Tabs: 'text', 'file', or 'nfc'
-  const [activeTab, setActiveTab] = useState<'text' | 'file' | 'nfc'>('text');
+  // Tabs: 'text', 'file', 'nfc', or 'cli'
+  const [activeTab, setActiveTab] = useState<'text' | 'file' | 'nfc' | 'cli'>('text');
 
   // Original Hashing States
   const [text, setText] = useState('');
@@ -698,6 +698,19 @@ export default function App() {
           >
             <i className="fa-solid fa-satellite-dish" aria-hidden="true" style={{ marginRight: '8px' }}></i>Painel NFC / RFID
           </button>
+          <button
+            className={`tab-btn ${activeTab === 'cli' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('cli');
+              setText('');
+              setFile(null);
+              setProgress(null);
+              setProgressBytes(null);
+              setHashes(null);
+            }}
+          >
+            💻 RustHash CLI
+          </button>
         </div>
 
         {/* Main application body */}
@@ -951,6 +964,96 @@ export default function App() {
 
           {activeTab === 'nfc' && <NfcSection />}
 
+          {activeTab === 'cli' && (
+            <section className="premium-card cli-section" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <h2 style={{ border: 'none', margin: 0, paddingBottom: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <i className="fa-solid fa-terminal" aria-hidden="true" style={{ color: 'var(--accent)' }}></i>
+                <span>RustHash CLI</span>
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '20px', fontSize: '1.05rem', lineHeight: '1.5' }}>
+                Hashing poderoso e de alta performance diretamente no seu terminal, sem necessidade de downloads manuais ou configurações complexas. Reutiliza o mesmo core de algoritmos em Rust do site oficial.
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '25px' }} className="install-grid">
+                <div className="cli-install-box" style={{ background: 'rgba(0,0,0,0.2)', padding: '20px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <h3 style={{ fontSize: '1.1rem', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <i className="fa-brands fa-windows" style={{ color: '#0078d4' }}></i> Windows (PowerShell)
+                  </h3>
+                  <div style={{ display: 'flex', background: '#0a0a0c', padding: '12px 15px', borderRadius: '6px', border: '1px solid var(--accent)', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <code style={{ color: 'var(--text-highlight)', fontSize: '0.85rem', overflowX: 'auto', whiteSpace: 'nowrap', marginRight: '10px', fontFamily: 'var(--mono)' }}>
+                      irm https://hash.erikraft.com/install.ps1 | iex
+                    </code>
+                    <button
+                      className="btn btn-secondary"
+                      style={{ padding: '4px 12px', fontSize: '0.8rem', minWidth: '75px', height: '30px' }}
+                      onClick={(e) => {
+                        navigator.clipboard.writeText("irm https://hash.erikraft.com/install.ps1 | iex");
+                        const target = e.currentTarget;
+                        target.innerText = "Copiado!";
+                        setTimeout(() => { target.innerText = "Copiar"; }, 2000);
+                      }}
+                    >
+                      Copiar
+                    </button>
+                  </div>
+                </div>
+
+                <div className="cli-install-box" style={{ background: 'rgba(0,0,0,0.2)', padding: '20px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <h3 style={{ fontSize: '1.1rem', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <i className="fa-brands fa-linux" style={{ color: '#fda110' }}></i> / <i className="fa-brands fa-apple" style={{ color: '#fff' }}></i> Linux & macOS
+                  </h3>
+                  <div style={{ display: 'flex', background: '#0a0a0c', padding: '12px 15px', borderRadius: '6px', border: '1px solid var(--accent)', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <code style={{ color: 'var(--text-highlight)', fontSize: '0.85rem', overflowX: 'auto', whiteSpace: 'nowrap', marginRight: '10px', fontFamily: 'var(--mono)' }}>
+                      curl -fsSL https://hash.erikraft.com/install.sh | sh
+                    </code>
+                    <button
+                      className="btn btn-secondary"
+                      style={{ padding: '4px 12px', fontSize: '0.8rem', minWidth: '75px', height: '30px' }}
+                      onClick={(e) => {
+                        navigator.clipboard.writeText("curl -fsSL https://hash.erikraft.com/install.sh | sh");
+                        const target = e.currentTarget;
+                        target.innerText = "Copiado!";
+                        setTimeout(() => { target.innerText = "Copiar"; }, 2000);
+                      }}
+                    >
+                      Copiar
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <h3 style={{ fontSize: '1.2rem', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-light)' }}>
+                <i className="fa-solid fa-circle-info"></i> Exemplos de Uso no Terminal
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <div style={{ background: '#0a0a0c', padding: '15px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                  <h4 style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '8px', margin: '0 0 8px 0' }}>Visualizar comandos e ajuda</h4>
+                  <pre style={{ margin: 0, color: 'var(--text-highlight)', fontFamily: 'var(--mono)' }}><code>rusthash --help</code></pre>
+                </div>
+
+                <div style={{ background: '#0a0a0c', padding: '15px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                  <h4 style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '8px', margin: '0 0 8px 0' }}>Hash de texto com algoritmo padrão (SHA256, SHA512 e BLAKE3)</h4>
+                  <pre style={{ margin: 0, color: 'var(--text-highlight)', fontFamily: 'var(--mono)' }}><code>rusthash hash "Olá RustHash!"</code></pre>
+                </div>
+
+                <div style={{ background: '#0a0a0c', padding: '15px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                  <h4 style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '8px', margin: '0 0 8px 0' }}>Hash de texto com algoritmo específico</h4>
+                  <pre style={{ margin: 0, color: 'var(--text-highlight)', fontFamily: 'var(--mono)' }}><code>rusthash hash --algorithm sha256 "Olá RustHash!"</code></pre>
+                </div>
+
+                <div style={{ background: '#0a0a0c', padding: '15px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                  <h4 style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '8px', margin: '0 0 8px 0' }}>Hash de arquivos grandes (Streaming de alta performance)</h4>
+                  <pre style={{ margin: 0, color: 'var(--text-highlight)', fontFamily: 'var(--mono)' }}><code>rusthash file ./arquivo.iso --algorithm sha256</code></pre>
+                </div>
+
+                <div style={{ background: '#0a0a0c', padding: '15px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                  <h4 style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '8px', margin: '0 0 8px 0' }}>Verificação de integridade de arquivos</h4>
+                  <pre style={{ margin: 0, color: 'var(--text-highlight)', fontFamily: 'var(--mono)' }}><code>rusthash verify ./arquivo.iso --algorithm sha256 --hash &lt;HASH&gt;</code></pre>
+                </div>
+              </div>
+            </section>
+          )}
+
           {error && (
             <div className="error-msg">
               <i className="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
@@ -959,7 +1062,8 @@ export default function App() {
           )}
 
           {/* Core hashes panel highlighting preserved structures */}
-          <section className="cli-panel">
+          {(activeTab === 'text' || activeTab === 'file') && (
+            <section className="cli-panel">
             <div className="cli-header">
               <div className="cli-dots">
                 <span className="dot red"></span>
@@ -990,91 +1094,87 @@ export default function App() {
                 />
               </div>
 
-              <div className="results-grid">
-                {[
-                  { label: 'SHA-256', key: 'sha256' },
-                  { label: 'SHA-512', key: 'sha512' },
-                  { label: 'MD5', key: 'md5' },
-                  { label: 'BLAKE3', key: 'blake3' }
-                ].map(({ label, key }) => {
-                  const val = hashes ? hashes[key] : '';
-                  const hasMatchValue = compareHash.length > 0 && val && val.length > 0;
-                  const isMatch = val && val.toLowerCase() === compareHash;
+              {[
+                { label: 'SHA-256', key: 'sha256' },
+                { label: 'SHA-512', key: 'sha512' },
+                { label: 'BLAKE3', key: 'blake3' },
+                { label: 'MD5', key: 'md5' },
+                { label: 'SHA-1', key: 'sha1' },
+              ].map(({ label, key }) => {
+                const val = hashes ? hashes[key] : '';
+                const isMatch = compareHash && val && val.toLowerCase() === compareHash;
+                const hasMatchValue = !!(compareHash && val);
 
-                  return (
-                    <div
-                      className="result-card"
-                      key={label}
-                      onMouseEnter={(e) => handleCardHover(e, true)}
-                      onMouseLeave={(e) => handleCardHover(e, false)}
-                    >
-                      <div className="result-card-header">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <h3>{label}</h3>
+                return (
+                  <div
+                    className="result-card"
+                    key={label}
+                    onMouseEnter={(e) => handleCardHover(e, true)}
+                    onMouseLeave={(e) => handleCardHover(e, false)}
+                  >
+                    <div className="result-card-header">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <h3>{label}</h3>
+                        <button
+                          className="info-icon-btn"
+                          aria-label="Ver detalhes do algoritmo"
+                          onMouseEnter={(e) => handleButtonHover(e, true)}
+                          onMouseLeave={(e) => handleButtonHover(e, false)}
+                          onMouseDown={handleButtonPress}
+                          onClick={() => {
+                            const match = hashAlgorithms.find(a => a.name === label);
+                            if (match) setActiveInfoAlgo(match);
+                          }}
+                        >
+                          <i className="fa-solid fa-circle-info" aria-hidden="true"></i>
+                        </button>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        {hasMatchValue && (
+                          <span className={`compare-status ${isMatch ? 'match' : 'mismatch'}`}>
+                            {isMatch ? <i className="fa-solid fa-circle-check" aria-hidden="true"></i> : <i className="fa-solid fa-circle-xmark" aria-hidden="true"></i>} {isMatch ? 'Match' : 'Different'}
+                          </span>
+                        )}
+                        {val && (
                           <button
-                            className="info-icon-btn"
-                            aria-label="Ver detalhes do algoritmo"
+                            className={`copy-btn ${copiedAlgo === label ? 'copied' : ''}`}
                             onMouseEnter={(e) => handleButtonHover(e, true)}
                             onMouseLeave={(e) => handleButtonHover(e, false)}
                             onMouseDown={handleButtonPress}
-                            onClick={() => {
-                              const match = hashAlgorithms.find(a => a.name === label);
-                              if (match) setActiveInfoAlgo(match);
-                            }}
+                            onClick={() => copyToClipboard(label, val)}
                           >
-                            <i className="fa-solid fa-circle-info" aria-hidden="true"></i>
+                            {copiedAlgo === label ? <i className="fa-solid fa-circle-check" aria-hidden="true"></i> : <i className="fa-solid fa-copy" aria-hidden="true"></i>} {copiedAlgo === label ? 'Copiado' : 'Copiar'}
                           </button>
-                        </div>
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          {hasMatchValue && (
-                            <span className={`compare-status ${isMatch ? 'match' : 'mismatch'}`}>
-                              {isMatch ? <i className="fa-solid fa-circle-check" aria-hidden="true"></i> : <i className="fa-solid fa-circle-xmark" aria-hidden="true"></i>} {isMatch ? 'Match' : 'Different'}
-                            </span>
-                          )}
-                          {val && (
-                            <button
-                              className={`copy-btn ${copiedAlgo === label ? 'copied' : ''}`}
-                              onMouseEnter={(e) => handleButtonHover(e, true)}
-                              onMouseLeave={(e) => handleButtonHover(e, false)}
-                              onMouseDown={handleButtonPress}
-                              onClick={() => copyToClipboard(label, val)}
-                            >
-                              {copiedAlgo === label ? <i className="fa-solid fa-circle-check" aria-hidden="true"></i> : <i className="fa-solid fa-copy" aria-hidden="true"></i>} {copiedAlgo === label ? 'Copiado' : 'Copiar'}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      <div className={`hash-container ${key}`}>
-                        {val ? (
-                          <span className="hash">{val}</span>
-                        ) : (
-                          <span className="hash-placeholder">
-                            {isComputing ? 'Processando...' : 'Nenhuma entrada ainda gerada'}
-                          </span>
                         )}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+                    <div className={`hash-container ${key}`}>
+                      {val ? (
+                        <span className="hash">{val}</span>
+                      ) : (
+                        <span className="hash-placeholder">
+                          {isComputing ? 'Processando...' : 'Nenhuma entrada ainda gerada'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </section>
+          )}
 
-          {/* New Expanded Algorithms Explorer Interface hidden for NFC tab */}
-          {activeTab !== 'nfc' && (
+          {/* New Expanded Algorithms Explorer Interface hidden for NFC and CLI tab */}
+          {(activeTab === 'text' || activeTab === 'file') && (
             <section className="premium-card algos-explorer">
               <div className="explorer-header" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '16px', marginBottom: '20px' }}>
-                <h2 style={{ border: 'none', margin: 0, padding: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <i className="fa-solid fa-compass" aria-hidden="true"></i>Explorer de Algoritmos Completo
-                </h2>
+                <h2 style={{ border: 'none', margin: 0, padding: 0, display: 'flex', alignItems: 'center', gap: '10px' }}><i className="fa-solid fa-compass" aria-hidden="true"></i>Explorer de Algoritmos Completo</h2>
                 <p style={{ margin: '8px 0 0 0' }}>
                   Pesquise e compare os {hashAlgorithms.length} algoritmos de hashing criptográficos, somas de verificação, hashes rápidos e fuzzy.
                 </p>
               </div>
 
-              {/* Category selector pills and Search Box */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'stretch', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
-                <div className="category-filters" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', flex: '1 1 100%', order: 1 }}>
+              <div className="category-filters-container" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   {categories.map(cat => (
                     <button
                       key={cat}
@@ -1103,27 +1203,6 @@ export default function App() {
                     </button>
                   ))}
                 </div>
-
-                <div className="search-box" style={{ flex: '1 1 100%', maxWidth: '100%', order: 2 }}>
-                  <input
-                    type="text"
-                    placeholder="Pesquisar algoritmo..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: 'rgba(0,0,0,0.2)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '20px',
-                      padding: '12px 20px',
-                      color: 'var(--text)',
-                      fontSize: '0.9rem',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-              </div>
 
               {/* Algorithms Grid */}
               <div className="explorer-grid">
@@ -1173,7 +1252,7 @@ export default function App() {
                         )}
                         <button
                           className="info-icon-btn"
-                          style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1.1rem' }}
+                          type="button"
                           onMouseEnter={(e) => handleButtonHover(e, true)}
                           onMouseLeave={(e) => handleButtonHover(e, false)}
                           onMouseDown={handleButtonPress}
@@ -1186,8 +1265,8 @@ export default function App() {
                     </div>
 
                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)' }}>
-                        {algo.description}
-                      </p>
+                      {algo.description}
+                    </p>
 
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '6px' }}>
                         <span style={{ fontSize: '0.8rem', color: 'var(--accent-light)', fontWeight: 700 }}>Recomendação:</span>
