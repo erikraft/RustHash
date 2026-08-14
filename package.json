@@ -6,7 +6,7 @@
     "postinstall": "npm install --prefix frontend --legacy-peer-deps",
     "build:wasm": "npx wasm-pack build rust --out-name hash_wasm --out-dir ../frontend/src/pkg --target web",
     "build:frontend": "npm run --prefix frontend build",
-    "build": "npm run build:wasm && npm run build:frontend",
+    "build": "bash build.sh",
     "dev": "npm run build:wasm && npm run --prefix frontend dev"
   },
   "devDependencies": {
